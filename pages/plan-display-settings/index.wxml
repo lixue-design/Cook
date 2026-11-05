@@ -1,0 +1,14 @@
+<view class="display-settings-page">
+  <view class="display-settings-safe-area" style="height: {{statusBarHeight}}px;"></view>
+  <view class="display-settings-nav">
+    <button class="display-settings-back" aria-label="返回" bindtap="onBack"><image src="/assets/plan-display-settings/back.svg" mode="scaleToFill" /></button>
+    <text>显示设置</text>
+    <view class="display-settings-nav-placeholder"></view>
+  </view>
+  <view class="display-settings-card">
+    <text class="display-settings-card-title">餐次</text>
+    <button class="display-settings-row" data-key="hasBreakfast" bindtap="onToggleMeal"><text>早餐</text><image wx:if="{{settings.hasBreakfast}}" src="/assets/plan-display-settings/turn-on-3x.png" mode="aspectFit" /><image wx:else src="/assets/plan-display-settings/turn-off-3x.png" mode="aspectFit" /></button>
+    <button class="display-settings-row" data-key="hasLunch" bindtap="onToggleMeal"><text>午餐</text><image wx:if="{{settings.hasLunch}}" src="/assets/plan-display-settings/turn-on-3x.png" mode="aspectFit" /><image wx:else src="/assets/plan-display-settings/turn-off-3x.png" mode="aspectFit" /></button>
+    <button class="display-settings-row" data-key="hasDinner" bindtap="onToggleMeal"><text>晚餐</text><image wx:if="{{settings.hasDinner}}" src="/assets/plan-display-settings/turn-on-3x.png" mode="aspectFit" /><image wx:else src="/assets/plan-display-settings/turn-off-3x.png" mode="aspectFit" /></button>
+  </view>
+</view>

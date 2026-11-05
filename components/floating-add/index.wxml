@@ -1,0 +1,3 @@
+<button class="floating-add" style="bottom: {{bottomOffset}}px;" aria-label="新增" bindtap="onTap">
+  <image class="floating-add__visual" src="/assets/floating-add.svg" mode="scaleToFill" />
+</button>

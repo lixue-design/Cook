@@ -1,0 +1,13 @@
+.cancel-page { min-height: 100vh; background: #F2F3F9; }
+.cancel-nav { height: 88rpx; padding: 0 28rpx; display: flex; align-items: center; justify-content: space-between; background: #fff; font-size: 32rpx; font-weight: 600; }
+.cancel-nav button, .cancel-nav view { width: 56rpx; font-size: 52rpx; }
+.cancel-scroll { height: calc(100vh - 88rpx - env(safe-area-inset-top)); }
+.warning-card, .reason-card, .submitted-card { margin: 28rpx 32rpx 0; padding: 36rpx; border-radius: 24rpx; background: #fff; display: flex; flex-direction: column; color: #60646D; font-size: 26rpx; line-height: 44rpx; }
+.warning-card text + text { margin-top: 16rpx; }
+.warning-title, .submitted-title { color: #191919; font-size: 32rpx; font-weight: 600; }
+.field-label { color: #191919; font-size: 28rpx; font-weight: 500; }
+textarea { width: 100%; height: 220rpx; box-sizing: border-box; margin-top: 20rpx; padding: 24rpx; border-radius: 18rpx; background: #F5F6F8; color: #191919; font-size: 26rpx; line-height: 40rpx; }
+.counter { margin-top: 8rpx; align-self: flex-end; color: #A3A6AE; font-size: 22rpx; }
+.submit-button { height: 88rpx; margin-top: 36rpx; border-radius: 22rpx; background: #D84A4A; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 28rpx; }
+.submit-button[disabled] { opacity: .65; }
+.submitted-card text + text { margin-top: 14rpx; }

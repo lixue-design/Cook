@@ -1,0 +1,19 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="100.8" height="100.8" viewBox="0 0 100.8 100.8" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Button_&#230;&#183;&#187;&#229;&#138;&#160;&#228;&#188;&#154;&#232;&#174;&#174;m">
+<g id="Shadow" filter="url(#filter0_f_0_4)">
+<circle cx="50.4" cy="50.4" r="22.4" fill="#7A8799" fill-opacity="0.2"/>
+</g>
+<circle id="Button" cx="50.4" cy="42" r="28" fill="#0A74FF"/>
+<g id="Frame">
+<path id="Vector" d="M50.4353 33.8333L50.4139 50.1667" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_2" d="M42.2333 42H58.5667" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+</g>
+<defs>
+<filter id="filter0_f_0_4" x="-4.76837e-07" y="0" width="100.8" height="100.8" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="14" result="effect1_foregroundBlur_0_4"/>
+</filter>
+</defs>
+</svg>

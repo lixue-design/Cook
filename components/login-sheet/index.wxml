@@ -1,0 +1,24 @@
+<half-screen-modal
+  visible="{{visible}}"
+  height="832rpx"
+  show-close="{{true}}"
+  close-icon="/assets/login-sheet/close.svg"
+  bindclose="close"
+>
+  <view class="login-sheet">
+    <view class="login-sheet-brand"><image src="/assets/login-sheet/brand.svg" mode="aspectFit" /></view>
+    <view class="login-sheet-copy"><text>登录一日三餐</text><text>同步你的专属食谱・计划・菜篮</text></view>
+    <view class="login-agreement" style="bottom: {{safeAreaBottom + 62}}px;">
+      <button class="login-agreement-checkbox {{loginAgreed ? 'login-agreement-checkbox--checked' : ''}}" hover-class="none" aria-label="{{loginAgreed ? '已同意用户服务协议和隐私政策' : '同意用户服务协议和隐私政策'}}" bindtap="onAgreementToggle">
+        <view wx:if="{{loginAgreed}}" class="login-agreement-checkmark"></view>
+      </button>
+      <view class="login-agreement-copy">
+        <text>我已阅读并同意</text>
+        <text class="login-agreement-link" data-type="terms" bindtap="openAgreement">《用户服务协议》</text>
+        <text>和</text>
+        <text class="login-agreement-link" data-type="privacy" bindtap="openAgreement">《隐私政策》</text>
+      </view>
+    </view>
+    <button class="login-sheet-button" hover-class="none" loading="{{loggingIn}}" disabled="{{loggingIn}}" style="bottom: {{safeAreaBottom + 6}}px;" bindtap="onWechatLogin">{{loggingIn ? '登录中…' : '立即登录'}}</button>
+  </view>
+</half-screen-modal>

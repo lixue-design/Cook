@@ -1,0 +1,10 @@
+{
+  "navigationStyle": "custom",
+  "disableScroll": true,
+  "usingComponents": {
+    "search-field": "/components/search-field/index",
+    "recipe-search-results": "/components/recipe-search-results/index",
+    "add-recipe-plan-sheet": "/components/add-recipe-plan-sheet/index",
+    "login-sheet": "/components/login-sheet/index"
+  }
+}

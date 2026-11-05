@@ -1,0 +1,14 @@
+page {
+  min-height: 100%;
+  --app-tabbar-height: calc(112rpx + env(safe-area-inset-bottom));
+  --color-auxiliary-line: #EBEDF2; /* 辅助线色 */
+  --size-auxiliary-line: 0.5px; /* 辅助线粗细 */
+  --color-icon-dark: #4E5461; /* 图标-深色 */
+  --color-brand-primary: #0A74FF; /* 品牌色 */
+  background: #F2F3F9;
+  color: #191919;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+button { margin: 0; padding: 0; line-height: normal; background: transparent; }
+button::after { border: 0; }

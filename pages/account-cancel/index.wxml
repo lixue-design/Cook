@@ -1,0 +1,25 @@
+<view class="cancel-page">
+  <view style="height: {{statusBarHeight}}px;"></view>
+  <view class="cancel-nav"><button bindtap="goBack">‹</button><text>账号注销</text><view></view></view>
+  <scroll-view class="cancel-scroll" scroll-y>
+    <view class="warning-card">
+      <text class="warning-title">提交前请确认</text>
+      <text>注销处理完成后，你的菜谱、计划和菜篮可能无法恢复。</text>
+      <text>当前 MVP 仅记录申请，由工作人员核验处理，不会在点击提交后立即自动清除数据。</text>
+      <text>若已有待处理申请，重复提交会返回原申请记录。</text>
+    </view>
+    <view wx:if="{{request}}" class="submitted-card">
+      <text class="submitted-title">申请已记录</text>
+      <text>状态：{{request.status === 'processing' ? '处理中' : '已提交'}}</text>
+      <text>申请编号：{{request.id}}</text>
+      <text>提交时间：{{request.submittedAt}}</text>
+    </view>
+    <view wx:else class="reason-card">
+      <text class="field-label">注销原因（选填）</text>
+      <textarea maxlength="500" value="{{reason}}" placeholder="可告诉我们你不再使用的原因" bindinput="onReasonInput"></textarea>
+      <text class="counter">{{reason.length}} / 500</text>
+      <button class="submit-button" loading="{{submitting}}" disabled="{{submitting}}" bindtap="submitRequest">提交注销申请</button>
+    </view>
+  </scroll-view>
+  <login-sheet visible="{{globalLoginSheetVisible}}" />
+</view>

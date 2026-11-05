@@ -1,0 +1,147 @@
+:root {
+  --color-auxiliary-line: #EBEDF2; /* 辅助线色 */
+  --size-auxiliary-line: .5px; /* 辅助线粗细 */
+  color: #000;
+  background: #fff;
+  font-family: "PingFang SC", -apple-system, BlinkMacSystemFont, "Microsoft YaHei", sans-serif;
+  font-synthesis: none;
+}
+
+* { box-sizing: border-box; }
+html, body, #root { width: 100%; height: 100%; margin: 0; }
+button { margin: 0; padding: 0; color: inherit; background: transparent; border: 0; font: inherit; cursor: pointer; }
+
+.app-shell {
+  position: relative;
+  width: min(100vw, 375px);
+  height: min(100dvh, 812px);
+  min-height: 640px;
+  margin: auto;
+  overflow: hidden;
+  background: #fff;
+}
+
+.app-header {
+  position: absolute;
+  z-index: 5;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 88.5px;
+  background: #fff;
+  border-bottom: var(--size-auxiliary-line) solid var(--color-auxiliary-line);
+}
+
+.status-bar {
+  position: relative;
+  width: 100%;
+  height: 44px;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.status-bar > span { position: absolute; top: 15px; left: 21px; line-height: 18px; }
+.status-icons { position: absolute; top: 17px; right: 14px; display: flex; align-items: center; gap: 5px; height: 12px; }
+.status-icons .cellular { width: 20px; height: 11px; }
+.status-icons .wifi { width: 15px; height: 11px; }
+.status-icons .battery { width: 25px; height: 12px; }
+
+.navigation-bar { position: absolute; top: 44px; right: 0; left: 0; height: 44px; }
+.navigation-bar h1 { position: absolute; top: 9px; left: 16px; height: 28px; margin: 0; font-size: 20px; font-weight: 500; line-height: 28px; letter-spacing: 0; }
+.search-button, .manage-button { position: absolute; top: 7px; height: 32px; background: #fff; border: .5px solid #efefef; }
+.search-button { right: 156px; width: 32px; border-radius: 50%; }
+.search-button img { position: absolute; top: 6px; left: 6px; width: 20px; height: 20px; }
+.manage-button { right: 100px; width: 48px; color: #4e5461; border-radius: 16px; font-size: 12px; line-height: 31px; letter-spacing: 0; }
+
+.content {
+  position: absolute;
+  top: 104px;
+  right: 0;
+  bottom: 78px;
+  left: 0;
+  display: flex;
+  overflow: hidden;
+  background: #fff;
+}
+
+.category-sidebar {
+  position: relative;
+  flex: 0 0 80px;
+  width: 80px;
+  height: 100%;
+  overflow: hidden auto;
+  background: #fff;
+  scrollbar-width: none;
+}
+.category-sidebar::-webkit-scrollbar, .recipe-scroll::-webkit-scrollbar { display: none; }
+.category-sidebar::after { position: absolute; z-index: 1; top: 0; right: 0; bottom: 0; width: var(--size-auxiliary-line); background: var(--color-auxiliary-line); content: ''; }
+.category-tab { position: relative; z-index: 2; display: flex; align-items: center; width: 64px; height: 56px; margin-left: 16px; color: #7b818f; text-align: left; background: transparent; font-size: 12px; font-weight: 400; line-height: 20px; letter-spacing: 0; }
+.category-tab span { width: 48px; white-space: nowrap; }
+.category-tab i { position: absolute; top: 0; right: 0; width: 1px; height: 56px; background: transparent; }
+.category-tab.active { color: #000; font-weight: 500; letter-spacing: 0; }
+.category-tab.active i { background: #000; }
+
+.recipe-scroll { flex: 1; width: 0; min-width: 0; height: 100%; padding-left: 16px; overflow: hidden auto; scroll-behavior: smooth; scrollbar-width: none; }
+.recipe-section { width: 279px; margin: 0 0 24px; scroll-margin-top: 0; }
+.recipe-section h2 { width: 100%; height: 26px; margin: 0 0 16px; font-size: 16px; font-weight: 500; line-height: 26px; }
+.recipe-list { display: flex; flex-direction: column; width: 279px; gap: 16px; }
+.recipe-section--featured .recipe-list { gap: 16px; }
+.recipe-item { position: relative; display: flex; flex: none; align-items: flex-start; width: 279px; height: 72px; background: #fff; cursor: pointer; }
+.recipe-item::after { position: absolute; right: 0; bottom: 0; left: 64px; height: var(--size-auxiliary-line); background: var(--color-auxiliary-line); content: ''; }
+.remote-image { position: relative; display: block; flex: 0 0 64px; width: 64px; height: 64px; overflow: hidden; background: #e7e8e9; border-radius: 12px; }
+.remote-image img { position: absolute; max-width: none; object-fit: fill; }
+.recipe-copy { min-width: 0; margin-left: 12px; }
+.recipe-copy h3 { max-width: 136px; margin: 0; overflow: hidden; color: #000; font-size: 14px; font-weight: 500; line-height: 24px; white-space: nowrap; text-overflow: ellipsis; }
+.recipe-copy p { display: flex; align-items: center; gap: 4px; height: 20px; margin: 2px 0 0; color: #7b818f; font-size: 12px; font-weight: 400; line-height: 20px; white-space: nowrap; }
+.recipe-copy b { flex: none; width: 2px; height: 2px; background: #7b818f; border-radius: 50%; }
+.add-plan { position: absolute; z-index: 1; right: 16px; bottom: 8px; display: flex; align-items: center; justify-content: center; width: 46px; height: 22px; color: #000; background: #f5f6f7; border-radius: 2px; font-size: 11px; font-weight: 400; line-height: 20px; }
+
+.fab { position: absolute; z-index: 20; right: 16px; bottom: 94px; width: 50px; height: 50px; background: #000; border-radius: 50%; }
+.fab::before, .fab::after { position: absolute; top: 24.25px; left: 16px; width: 18px; height: 1.5px; background: #fff; border-radius: 2px; content: ''; }
+.fab::after { transform: rotate(90deg); }
+.fab i { display: none; }
+
+.bottom-nav { position: absolute; z-index: 10; right: 0; bottom: 0; left: 0; display: flex; height: 78px; padding: 15px 0 0; color: #7b818f; background: #fff; border: 0; box-shadow: 0 -4px 16px rgb(60 95 155 / 4%); font-size: 14px; font-weight: 400; line-height: 16px; letter-spacing: 0; }
+.bottom-nav span { display: flex; flex: 1; align-items: flex-start; justify-content: center; height: 16px; }
+.bottom-nav .selected { color: #000; font-weight: 500; }
+
+.state { display: flex; width: 100%; align-items: center; justify-content: center; gap: 10px; color: #7b818f; font-size: 14px; }
+.empty { flex-direction: column; line-height: 24px; text-align: center; }
+.empty small { color: #b2b6bf; }
+.spinner { width: 16px; height: 16px; border: 2px solid #ebedf2; border-top-color: #000; border-radius: 50%; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.toast { position: absolute; z-index: 30; right: 18px; bottom: 104px; left: 18px; padding: 12px 16px; color: #fff; text-align: left; background: #000; border-radius: 8px; box-shadow: 0 4px 16px rgb(0 0 0 / 20%); font-size: 13px; }
+
+.manage-mask { position: absolute; z-index: 200; inset: 0; width: 100%; height: 100%; background: rgb(0 0 0 / 60%); }
+.manage-sheet { position: absolute; z-index: 201; right: 0; bottom: 0; left: 0; height: calc(100% - 91px); overflow: hidden; background: #feffff; border-radius: 8px 8px 0 0; box-shadow: 0 0 4px rgb(0 0 0 / 10%), inset 0 .5px 0 #e2ebea; }
+.manage-sheet h2 { position: absolute; top: 24px; right: 0; left: 0; height: 26px; margin: 0; font-size: 16px; font-weight: 500; line-height: 26px; text-align: center; }
+.manage-sheet-close { position: absolute; top: 24px; right: 24px; width: 20px; height: 20px; }
+.manage-sheet-close img { display: block; width: 20px; height: 20px; }
+.manage-list { position: absolute; top: 70px; right: 16px; left: 16px; display: flex; flex-direction: column; gap: 16px; }
+.manage-item { position: relative; display: flex; align-items: center; justify-content: space-between; width: 343px; height: 24px; border-radius: 4px; transition: background-color 120ms ease, box-shadow 120ms ease; touch-action: none; user-select: none; will-change: transform; }
+.manage-item--dragging { z-index: 5; background: #fff; box-shadow: 0 4px 12px rgb(0 0 0 / 14%); opacity: .96; }
+.manage-item--drop-target::before { position: absolute; top: -8.5px; right: 0; left: 0; height: 1px; background: #000; border-radius: 1px; content: ''; }
+.manage-item-name { display: flex; align-items: center; gap: 8px; height: 24px; font-size: 14px; line-height: 24px; }
+.manage-item-name img { width: 16px; height: 16px; }
+.manage-item-actions { display: flex; align-items: center; gap: 12px; }
+.manage-item-actions button, .manage-item-actions img { display: block; width: 20px; height: 20px; }
+.manage-sheet footer { position: absolute; right: 0; bottom: 0; left: 0; display: flex; justify-content: center; height: 96px; padding-top: 12px; background: #fff; box-shadow: 0 -.5px 2px rgb(0 0 0 / 10%); }
+.manage-sheet footer button { display: flex; align-items: center; justify-content: center; width: 343px; height: 44px; color: #fff; background: #000; border-radius: 6px; font-size: 16px; font-weight: 500; line-height: 26px; }
+
+.category-dialog-layer { position: absolute; z-index: 300; inset: 0; display: flex; align-items: center; justify-content: center; background: rgb(0 0 0 / 60%); }
+.category-dialog { position: relative; width: 295px; height: 177px; overflow: hidden; background: #fff; border-radius: 6px; }
+.category-dialog--delete { height: 189px; }
+.category-dialog h3 { position: absolute; top: 24px; right: 24px; left: 24px; height: 26px; margin: 0; font-size: 16px; font-weight: 400; line-height: 26px; text-align: center; }
+.category-dialog input { position: absolute; top: 66px; left: 24px; width: 247px; height: 36px; padding: 8px 12px; color: #000; background: #f5f6f7; border: 0; border-radius: 4px; outline: 0; font: 400 14px/20px "PingFang SC", sans-serif; }
+.category-dialog input::placeholder { color: #b0b6c3; opacity: 1; }
+.category-dialog p { position: absolute; top: 66px; left: 24px; width: 247px; height: 48px; margin: 0; color: #666; font-size: 14px; font-weight: 400; line-height: 24px; }
+.category-dialog-actions { position: absolute; right: 0; bottom: 0; left: 0; display: flex; height: 51px; border-top: 1px solid #e2ebea; }
+.category-dialog-actions button { display: flex; flex: 1; align-items: center; justify-content: center; height: 51px; font-size: 16px; font-weight: 400; line-height: 26px; }
+.category-dialog-actions button + button { border-left: 1px solid #e2ebea; }
+.category-dialog-actions .cancel { color: #999; }
+
+@media (min-width: 700px) {
+  body { display: grid; min-height: 100vh; place-items: center; background: #e6e8ee; }
+  .app-shell { box-shadow: 0 16px 50px rgb(0 0 0 / 16%); }
+}

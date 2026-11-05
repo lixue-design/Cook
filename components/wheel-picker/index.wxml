@@ -1,0 +1,16 @@
+<half-screen-modal visible="{{visible}}" height="620rpx" panel-radius="0" panel-shadow="none" bindclose="onClose">
+  <view class="wheel-picker" catchtap="noop">
+    <view class="wheel-picker-header">
+      <button class="wheel-picker-action wheel-picker-action--cancel" hover-class="none" bindtap="onClose">取消</button>
+      <button class="wheel-picker-action wheel-picker-action--confirm" hover-class="none" bindtap="onConfirm">确定</button>
+    </view>
+    <view class="wheel-picker-wheel">
+      <view class="wheel-picker-selection-slot"></view>
+      <scroll-view class="wheel-picker-options" scroll-y enhanced show-scrollbar="{{false}}" scroll-top="{{wheelScrollTop}}" bindtouchstart="onWheelTouchStart" bindscroll="onWheelScroll" bindtouchend="onWheelTouchEnd" bindtouchcancel="onWheelTouchEnd">
+        <button wx:for="{{pickerRows}}" wx:key="id" class="wheel-picker-option {{item.empty ? 'wheel-picker-option--empty' : (item.rowIndex === activeRowIndex ? 'wheel-picker-option--selected' : '')}}" hover-class="none" disabled="{{item.empty}}" data-row-index="{{item.rowIndex}}" bindtap="onOptionTap">{{item.label}}</button>
+      </scroll-view>
+      <view class="wheel-picker-fade wheel-picker-fade--top"></view>
+      <view class="wheel-picker-fade wheel-picker-fade--bottom"></view>
+    </view>
+  </view>
+</half-screen-modal>

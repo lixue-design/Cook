@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1600" viewBox="0 0 1200 1600">
+  <rect width="1200" height="1600" fill="#ffffff"/>
+  <g fill="#111111" font-family="PingFang SC, Arial, sans-serif">
+    <text x="80" y="140" font-size="64" font-weight="600">番茄炒鸡蛋</text>
+    <text x="80" y="260" font-size="42">食材：番茄2个、鸡蛋3个、葱花少许、盐少许</text>
+    <text x="80" y="380" font-size="42">步骤：</text>
+    <text x="80" y="460" font-size="42">1. 番茄洗净切块，鸡蛋加盐打散。</text>
+    <text x="80" y="540" font-size="42">2. 热锅倒油，炒熟鸡蛋后盛出。</text>
+    <text x="80" y="620" font-size="42">3. 炒软番茄，倒回鸡蛋翻炒均匀。</text>
+    <text x="80" y="700" font-size="42">4. 撒上葱花，出锅即可。</text>
+  </g>
+</svg>

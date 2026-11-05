@@ -1,0 +1,32 @@
+<view class="profile-edit-page">
+  <view class="profile-edit-navigation" style="height: {{navigationBottom}}px;">
+    <view class="status-space" style="height: {{statusBarHeight}}px;"></view>
+    <view class="profile-edit-navigation-row">
+      <button class="profile-edit-back" hover-class="none" aria-label="返回" bindtap="goBack"><image src="/assets/about/back.svg" mode="aspectFit" /></button>
+      <text class="profile-edit-navigation-title">编辑资料</text>
+    </view>
+    <view class="profile-edit-navigation-line"></view>
+  </view>
+
+  <view class="profile-edit-content" style="padding-top: {{navigationBottom + 16}}px;">
+    <view class="profile-edit-card">
+      <button class="profile-edit-row profile-edit-avatar-row" hover-class="none" bindtap="onChooseAvatar">
+        <text>头像</text>
+        <view class="profile-edit-avatar-value">
+          <image class="profile-edit-avatar" src="{{avatarUrl || '/assets/profile/default-avatar.svg'}}" mode="aspectFill" />
+          <image class="profile-edit-arrow" src="/assets/profile/menu-arrow.svg" mode="aspectFit" />
+        </view>
+      </button>
+      <view class="profile-edit-divider"></view>
+      <view class="profile-edit-row profile-edit-name-row">
+        <text>用户名</text>
+        <input class="profile-edit-name-input" value="{{nickname}}" maxlength="20" placeholder="请输入用户名" placeholder-class="profile-edit-placeholder" bindinput="onNicknameInput" />
+      </view>
+    </view>
+  </view>
+
+  <view class="profile-edit-bottom-action">
+    <button class="profile-edit-save" hover-class="none" loading="{{saving}}" disabled="{{saving}}" bindtap="onSave">保存</button>
+  </view>
+  <login-sheet visible="{{globalLoginSheetVisible}}" />
+</view>

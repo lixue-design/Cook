@@ -1,0 +1,116 @@
+<view class="basket-page">
+  <view class="basket-header {{headerShadow ? 'basket-header--shadow' : ''}}" style="height: {{basketHeaderHeight}}px;">
+    <app-top-navigation title="菜篮" actions="{{topNavigationActions}}" layout="{{topNavigationLayout}}" bindaction="onTopNavigationAction" />
+    <view style="height: {{topNavigationLayout.navigationBottom}}px;"></view>
+    <date-range-switcher text="{{dateRangeText}}" show-divider="{{false}}" bindchange="onRangeChange" bindreset="onRangeReset" />
+  </view>
+
+  <scroll-view wx:if="{{status === 'success' || status === 'empty'}}" class="basket-scroll" style="top: {{basketHeaderHeight}}px; bottom: {{tabBarHeight}}px;" scroll-y="{{!ingredientDragActive}}" scroll-into-view="{{scrollIntoView}}" scroll-with-animation enhanced enable-passive="{{true}}" bounces="{{!ingredientDragActive}}" bindscroll="onBasketScroll">
+    <view class="basket-content">
+      <view wx:if="{{status === 'empty'}}" class="basket-empty">
+        <image class="basket-empty-illustration" src="/assets/shopping-list/empty-basket.svg" mode="aspectFit" />
+        <view class="basket-empty-copy"><text>没有食材</text><text>点击 + 按钮即可添加</text></view>
+      </view>
+
+      <block wx:else>
+        <view class="ingredient-list ingredient-card">
+          <view id="ingredient-{{ingredient.id}}" wx:for="{{pendingItems}}" wx:for-item="ingredient" wx:for-index="itemIndex" wx:key="id" class="ingredient-swipe {{ingredientDragActive && ingredientDraggingId === ingredient.id ? 'ingredient-swipe--dragging' : ''}}">
+            <button wx:if="{{swipeId === ingredient.id && swipeOffset > 0}}" class="ingredient-remove" data-id="{{ingredient.id}}" catchtap="onDeleteIngredient">移除</button>
+            <view
+              class="ingredient-row {{deletingId === ingredient.id ? 'ingredient-row--deleting' : ''}} {{highlightedIngredientId === ingredient.id ? 'ingredient-row--located' : ''}} {{ingredientDragActive && ingredientDraggingId === ingredient.id ? 'ingredient-row--dragging' : ''}} {{ingredientDragActive && ingredientDraggingId !== ingredient.id && ingredientDragTargetGroupIndex === 0 && ingredientDragTargetIndex === itemIndex ? 'ingredient-row--drop-target' : ''}}"
+              style="transform: translate3d(-{{swipeId === ingredient.id ? swipeOffset : 0}}rpx, {{ingredientDragActive && ingredientDraggingId === ingredient.id ? ingredientDragOffset : 0}}rpx, 0);"
+              data-id="{{ingredient.id}}"
+              data-group-index="0"
+              data-item-index="{{itemIndex}}"
+              bindtap="onShowIngredientSources"
+              bindtouchstart="onIngredientTouchStart"
+              bindtouchmove="onIngredientTouchMove"
+              bindtouchend="onIngredientTouchEnd"
+              bindtouchcancel="onIngredientTouchCancel"
+              bindlongpress="onIngredientLongPress"
+            >
+              <view class="checkbox {{ingredient.checked ? 'checkbox--checked' : ''}}" data-id="{{ingredient.id}}" data-group-index="0" data-item-index="{{itemIndex}}" catchtap="onToggleIngredient"><view wx:if="{{ingredient.checked}}" class="checkmark"></view></view>
+              <text class="ingredient-name">{{ingredient.name}}</text>
+              <text wx:if="{{ingredient.amount}}" class="ingredient-amount">{{ingredient.amount}}</text>
+            </view>
+          </view>
+        </view>
+
+        <view wx:if="{{completedItems.length}}" class="completed-section {{pendingItems.length ? '' : 'completed-section--only'}}">
+          <view wx:if="{{pendingItems.length}}" class="completed-divider"></view>
+          <view class="completed-heading"><text>已完成</text></view>
+          <view class="ingredient-list">
+            <view id="ingredient-{{ingredient.id}}" wx:for="{{completedItems}}" wx:for-item="ingredient" wx:for-index="itemIndex" wx:key="id" class="ingredient-swipe">
+              <button wx:if="{{swipeId === ingredient.id && swipeOffset > 0}}" class="ingredient-remove" data-id="{{ingredient.id}}" catchtap="onDeleteIngredient">移除</button>
+              <view
+                class="ingredient-row ingredient-row--checked {{deletingId === ingredient.id ? 'ingredient-row--deleting' : ''}} {{highlightedIngredientId === ingredient.id ? 'ingredient-row--located' : ''}}"
+                style="transform: translate3d(-{{swipeId === ingredient.id ? swipeOffset : 0}}rpx, 0, 0);"
+                data-id="{{ingredient.id}}"
+                data-group-index="1"
+                data-item-index="{{itemIndex}}"
+                bindtap="onShowIngredientSources"
+                bindtouchstart="onIngredientTouchStart"
+                bindtouchmove="onIngredientTouchMove"
+                bindtouchend="onIngredientTouchEnd"
+                bindtouchcancel="onIngredientTouchCancel"
+                bindlongpress="onEditIngredient"
+              >
+                <view class="checkbox checkbox--checked" data-id="{{ingredient.id}}" data-group-index="1" data-item-index="{{itemIndex}}" catchtap="onToggleIngredient"><view class="checkmark"></view></view>
+                <text class="ingredient-name">{{ingredient.name}}</text>
+                <text wx:if="{{ingredient.amount}}" class="ingredient-amount">{{ingredient.amount}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </block>
+    </view>
+  </scroll-view>
+
+  <view wx:elif="{{status === 'loading'}}" class="basket-skeleton" style="top: {{basketHeaderHeight}}px; bottom: {{tabBarHeight}}px;">
+    <view wx:for="{{skeletonRows}}" wx:key="*this" class="basket-skeleton-row">
+      <view class="basket-skeleton-checkbox basket-skeleton-block"></view><view class="basket-skeleton-name basket-skeleton-block"></view><view class="basket-skeleton-amount basket-skeleton-block"></view>
+    </view>
+  </view>
+  <view wx:else class="basket-state basket-state--error" style="top: {{basketHeaderHeight}}px; bottom: {{tabBarHeight}}px;"><text>菜篮加载失败，请检查网络后重试</text><button class="basket-retry" bindtap="onRetryLoad">重新加载</button></view>
+
+  <floating-add bind:tap="onAddOther" />
+
+  <half-screen-modal visible="{{ingredientDialogVisible}}" height="416rpx" avoid-keyboard="{{true}}" keyboard-height="{{ingredientKeyboardHeight}}" show-close="{{true}}" bindclose="onIngredientDialogCancel" bindafterclose="onIngredientDialogAfterClose">
+    <view class="ingredient-create-sheet" catchtap="noop">
+      <text class="ingredient-create-title">{{ingredientDialogTitle}}</text>
+      <input class="ingredient-create-input" value="{{ingredientDialogValue}}" placeholder="多个食材用逗号分隔，如：番茄，鸡蛋" placeholder-class="ingredient-create-placeholder" maxlength="100" focus="{{ingredientKeyboardFocus}}" adjust-position="false" always-embed="{{true}}" hold-keyboard="{{true}}" confirm-type="done" bindinput="onIngredientDialogInput" bindkeyboardheightchange="onIngredientKeyboardHeightChange" bindconfirm="onIngredientDialogConfirm" />
+      <button class="ingredient-create-confirm" bindtap="onIngredientDialogConfirm">确定</button>
+    </view>
+  </half-screen-modal>
+
+  <half-screen-modal visible="{{sourceSheetVisible}}" height="calc(100vh - 184rpx)" show-close="{{true}}" bindclose="onCloseIngredientSources" bindafterclose="onIngredientSourcesAfterClose">
+    <view class="ingredient-source-sheet">
+      <block wx:if="{{sourceRecipes.length}}">
+        <view class="ingredient-source-recipe" wx:for="{{sourceRecipes}}" wx:for-item="sourceRecipe" wx:key="id" data-recipe-id="{{sourceRecipe.recipeId}}" bindtap="onSourceRecipeTap">
+          <view class="ingredient-source-recipe-cover-frame">
+            <image class="ingredient-source-recipe-cover" src="{{sourceRecipe.coverUrl}}" mode="aspectFill" data-index="{{index}}" binderror="onSourceRecipeImageError" />
+          </view>
+          <view class="ingredient-source-recipe-copy">
+            <text class="ingredient-source-recipe-name">{{sourceRecipe.title}}</text>
+          </view>
+        </view>
+      </block>
+      <view wx:else class="ingredient-source-empty">
+        <image class="ingredient-source-empty-illustration" src="/assets/recipe-list/empty-recipes.svg" mode="scaleToFill" />
+        <view class="ingredient-source-empty-copy">
+          <text class="ingredient-source-empty-title">没有菜谱</text>
+          <text class="ingredient-source-empty-tip">点击 + 按钮即可添加</text>
+        </view>
+      </view>
+    </view>
+  </half-screen-modal>
+
+  <action-sheet
+    visible="{{basketActionVisible}}"
+    actions="{{basketActions}}"
+    bindselect="onBasketActionSelect"
+    bindclose="onBasketActionClose"
+    bindafterclose="onBasketActionAfterClose"
+  />
+  <login-sheet visible="{{globalLoginSheetVisible}}" />
+</view>

@@ -1,0 +1,7 @@
+.agreement-page { min-height: 100vh; background: #fff; }
+.agreement-nav { height: 88rpx; padding: 0 28rpx; display: flex; align-items: center; justify-content: space-between; border-bottom: 1rpx solid #EBEDF2; font-size: 32rpx; font-weight: 600; }
+.agreement-nav button, .agreement-nav view { width: 56rpx; font-size: 52rpx; }
+.agreement-scroll { height: calc(100vh - 88rpx - env(safe-area-inset-top)); }
+.agreement-body { padding: 40rpx 40rpx 96rpx; display: flex; flex-direction: column; color: #4E5461; font-size: 28rpx; line-height: 48rpx; }
+.updated { color: #999DA5; font-size: 24rpx; }
+.heading { margin-top: 36rpx; margin-bottom: 8rpx; color: #191919; font-size: 30rpx; font-weight: 600; }

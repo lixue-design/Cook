@@ -1,0 +1,2 @@
+page,
+.login-redirect { min-height: 100vh; background: #f2f3f9; }

@@ -1,0 +1,36 @@
+<half-screen-modal visible="{{visible}}" height="788rpx" show-close="{{true}}" bindclose="onClose" bindafterclose="onAfterClose">
+  <view class="add-plan-sheet" catchtap="noop">
+    <view class="add-plan-header">
+      <text class="add-plan-title">选择日期与餐次</text>
+    </view>
+
+    <view class="add-plan-body">
+      <view class="date-heading">
+        <text>日期</text>
+        <view class="date-heading-actions">
+          <button class="today-button" bindtap="onTodayTap">今天</button>
+          <button class="week-arrow week-arrow--prev" data-direction="-1" aria-label="上一周" bindtap="onWeekChange"><view></view></button>
+          <button class="week-arrow week-arrow--next" data-direction="1" aria-label="下一周" bindtap="onWeekChange"><view></view></button>
+        </view>
+      </view>
+
+      <view class="week-picker">
+        <button wx:for="{{dates}}" wx:key="id" class="week-day" data-date="{{item.id}}" bindtap="onDateTap">
+          <text class="week-day-name">{{item.weekday}}</text>
+          <text class="week-day-number {{selectedDate === item.id ? 'week-day-number--selected' : ''}}">{{item.day}}</text>
+        </button>
+      </view>
+
+      <view class="meal-picker">
+        <text class="meal-label">餐次</text>
+        <view class="meal-options">
+          <button wx:for="{{meals}}" wx:key="id" class="meal-option {{selectedMeal === item.id ? 'meal-option--selected' : ''}}" data-meal="{{item.id}}" bindtap="onMealTap">{{item.name}}</button>
+        </view>
+      </view>
+    </view>
+
+    <view class="add-plan-footer">
+      <button class="add-plan-confirm" bindtap="onConfirm">确定</button>
+    </view>
+  </view>
+</half-screen-modal>

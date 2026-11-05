@@ -1,0 +1,20 @@
+<block wx:if="{{rendered}}">
+  <view class="action-sheet-root" style="height: {{viewportHeight}}px;">
+    <view class="action-sheet-mask {{closing ? 'action-sheet-mask--closing' : ''}}" bindtap="onMaskTap" catchtouchmove="noop"></view>
+    <view class="action-sheet-panel {{opening ? 'action-sheet-panel--opening' : ''}} {{closing ? 'action-sheet-panel--closing' : ''}}" catchtap="noop" catchtouchmove="noop">
+      <view wx:if="{{title}}" class="action-sheet-title">{{title}}</view>
+      <view class="action-sheet-options">
+        <button
+          wx:for="{{actions}}"
+          wx:key="index"
+          class="action-sheet-option {{item.destructive ? 'action-sheet-option--destructive' : ''}}"
+          data-index="{{index}}"
+          bindtap="onOptionTap"
+        >{{item.label || item}}</button>
+      </view>
+      <view class="action-sheet-gap"></view>
+      <button class="action-sheet-cancel" bindtap="onCancelTap">{{cancelText}}</button>
+      <view class="action-sheet-safe-area" style="height: {{safeAreaBottom}}px;"></view>
+    </view>
+  </view>
+</block>

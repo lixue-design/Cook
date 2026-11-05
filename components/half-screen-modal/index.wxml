@@ -1,0 +1,11 @@
+<block wx:if="{{rendered}}">
+  <view class="half-screen-root" style="height: {{viewportHeight}}px;">
+    <view class="half-screen-mask {{closing ? 'half-screen-mask--closing' : ''}}" bindtap="onMaskTap" catchtouchmove="noop"></view>
+    <view class="half-screen-panel {{closing ? 'half-screen-panel--closing' : ''}} {{keyboardReady ? '' : 'half-screen-panel--preparing'}} {{opening ? 'half-screen-panel--opening' : ''}}" style="height: {{height}}; bottom: calc({{bottomOffset}} + {{resolvedKeyboardHeight}}px); border-radius: {{panelRadius}}; box-shadow: {{panelShadow}};" catchtap="noop" catchtouchmove="noop">
+      <button wx:if="{{showClose}}" class="half-screen-close" aria-label="关闭" bindtap="onCloseTap">
+        <image src="{{closeIcon}}" mode="aspectFit" />
+      </button>
+      <slot></slot>
+    </view>
+  </view>
+</block>

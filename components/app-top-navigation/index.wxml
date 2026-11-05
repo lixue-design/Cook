@@ -1,0 +1,13 @@
+<view class="app-top-navigation" style="height: {{layout.navigationBottom}}px;">
+  <button class="app-top-navigation-title {{titleInteractive ? 'app-top-navigation-title--interactive' : ''}}" style="top: {{layout.contentTop}}px;" hover-class="none" bindtap="onTitleTap">
+    <text>{{title}}</text>
+    <view wx:if="{{showTitleIndicator}}" class="app-top-navigation-indicator">
+      <image class="app-top-navigation-indicator-icon {{titleIndicatorRotated ? 'app-top-navigation-indicator-icon--rotated' : ''}}" src="/assets/icons/plan-mode-dropdown.svg" mode="aspectFit" />
+    </view>
+  </button>
+  <view class="app-top-navigation-actions" style="top: {{layout.contentTop}}px; right: {{layout.actionsRight}}px;">
+    <button wx:for="{{actions}}" wx:key="id" class="app-top-navigation-action" hover-class="none" data-index="{{index}}" aria-label="{{item.label}}" bindtap="onActionTap">
+      <image src="{{item.icon}}" mode="aspectFit" />
+    </button>
+  </view>
+</view>

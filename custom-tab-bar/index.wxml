@@ -1,0 +1,8 @@
+<view wx:if="{{!hidden}}" class="tabbar-shell" style="height: {{barHeight}}px; padding-bottom: {{safeAreaBottom}}px;">
+  <view class="tabbar-row">
+    <button wx:for="{{list}}" wx:key="pagePath" class="tab-item {{index === 1 ? 'tab-item--plan' : ''}} {{selected === index ? 'tab-item--selected' : ''}}" data-path="{{item.pagePath}}" data-index="{{index}}" bindtap="switchTab">
+      <image class="tab-icon" src="{{selected === index ? item.selectedIconPath : item.iconPath}}" mode="aspectFit" />
+      <text class="tab-label">{{item.text}}</text>
+    </button>
+  </view>
+</view>

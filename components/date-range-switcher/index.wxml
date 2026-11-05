@@ -1,0 +1,9 @@
+<view class="date-range-switcher {{showDivider ? '' : 'date-range-switcher--without-divider'}}" style="--date-range-divider-inset: {{dividerInset}};">
+  <button class="date-range-nav date-range-nav--previous" hover-class="none" aria-label="上一周" bindtap="onPrevious">
+    <image src="/assets/icons/left.svg" mode="aspectFit" />
+  </button>
+  <text class="date-range-title" bindtap="onTitleTap">{{text}}</text>
+  <button class="date-range-nav date-range-nav--next" hover-class="none" aria-label="下一周" bindtap="onNext">
+    <image src="/assets/icons/right.svg" mode="aspectFit" />
+  </button>
+</view>

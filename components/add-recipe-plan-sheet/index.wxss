@@ -1,0 +1,27 @@
+:host { display: block; }
+button { margin: 0; padding: 0; border: 0; background: transparent; font-family: "PingFang SC"; }
+button::after { border: 0; }
+.add-plan-sheet { position: relative; width: 100%; height: 100%; overflow: hidden; color: #000; background: #fff; font-family: "PingFang SC"; }
+.add-plan-header { position: absolute; top: 0; right: 0; left: 0; height: 140rpx; }
+.add-plan-title { position: absolute; top: 48rpx; right: 0; left: 0; height: 52rpx; font-size: 32rpx; font-weight: 500; line-height: 52rpx; text-align: center; }
+.add-plan-body { position: absolute; top: 140rpx; right: 32rpx; left: 32rpx; height: 420rpx; }
+.date-heading { display: flex; align-items: center; justify-content: space-between; width: 686rpx; height: 48rpx; color: #4e5461; font-size: 28rpx; font-weight: 400; line-height: 48rpx; letter-spacing: -0.84rpx; }
+.date-heading-actions { display: flex; align-items: center; gap: 24rpx; height: 48rpx; }
+.today-button { width: 56rpx; height: 48rpx; color: #4e5461; font-size: 28rpx; line-height: 48rpx; letter-spacing: -0.84rpx; }
+.week-arrow { position: relative; width: 32rpx; height: 48rpx; }
+.week-arrow view { position: absolute; top: 16rpx; width: 16rpx; height: 16rpx; box-sizing: border-box; border-top: 2rpx solid #4e5461; border-right: 2rpx solid #4e5461; }
+.week-arrow--prev view { left: 8rpx; transform: rotate(-135deg); }
+.week-arrow--next view { left: 8rpx; transform: rotate(45deg); }
+.week-picker { display: flex; width: 686rpx; height: 160rpx; margin-top: 24rpx; border-radius: 8rpx; background: #f5f6f7; }
+.week-day { display: flex; align-items: center; flex-direction: column; width: 98rpx; height: 160rpx; }
+.week-day-name { height: 32rpx; margin-top: 24rpx; color: #7b818f; font-size: 22rpx; font-weight: 400; line-height: 32rpx; letter-spacing: -0.66rpx; }
+.week-day-number { display: flex; align-items: center; justify-content: center; width: 72rpx; height: 72rpx; margin-top: 8rpx; border-radius: 50%; color: #000; font-size: 26rpx; font-weight: 500; line-height: 72rpx; text-align: center; }
+.week-day-number--selected { color: #fff; background: var(--color-brand-primary, #0A74FF); }
+.meal-picker { width: 686rpx; margin-top: 24rpx; }
+.meal-label { display: block; height: 48rpx; color: #4e5461; font-size: 28rpx; font-weight: 400; line-height: 48rpx; letter-spacing: -0.84rpx; }
+.meal-options { display: flex; gap: 24rpx; width: 686rpx; height: 64rpx; margin-top: 24rpx; }
+.meal-option { display: flex; align-items: center; justify-content: center; width: 212rpx; height: 64rpx; border-radius: 8rpx; color: #000; background: #f5f6f7; font-size: 24rpx; font-weight: 400; line-height: 40rpx; }
+.meal-option:nth-child(2) { width: 214rpx; }
+.meal-option--selected { color: #fff; background: var(--color-brand-primary, #0A74FF); }
+.add-plan-footer { position: absolute; right: 0; bottom: 0; left: 0; height: 192rpx; padding-top: 24rpx; box-sizing: border-box; background: #fff; box-shadow: 0 -1rpx 4rpx rgba(0,0,0,.04); }
+.add-plan-confirm { display: flex; align-items: center; justify-content: center; width: 686rpx; height: 88rpx; margin-left: 32rpx; border-radius: 12rpx; color: #fff; background: var(--color-brand-primary, #0A74FF); font-size: 32rpx; font-weight: 400; line-height: 52rpx; }

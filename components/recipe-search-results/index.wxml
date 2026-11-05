@@ -1,0 +1,10 @@
+<view class="search-results">
+  <view class="search-result-item" wx:for="{{displayRecipes}}" wx:key="id" data-id="{{item.id}}" bindtap="onRecipeTap">
+    <view class="search-result-cover">
+      <image wx:if="{{showImages}}" class="search-result-image" src="{{item.coverUrl}}" mode="aspectFill" lazy-load="{{true}}" />
+    </view>
+    <view class="search-result-copy"><text class="search-result-title">{{item.title}}</text></view>
+    <button class="search-result-action {{item.selected ? 'search-result-action--selected' : ''}}" data-id="{{item.id}}" data-recipe="{{item}}" catchtap="onToggle">{{item.selected ? '已添加' : '加计划'}}</button>
+  </view>
+  <view wx:if="{{!displayRecipes.length}}" class="search-result-empty">{{emptyText}}</view>
+</view>

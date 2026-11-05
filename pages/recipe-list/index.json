@@ -1,0 +1,11 @@
+{
+  "usingComponents": {
+    "floating-add": "/components/floating-add/index",
+    "half-screen-modal": "/components/half-screen-modal/index",
+    "recipe-catalog": "/components/recipe-catalog/index",
+    "add-recipe-plan-sheet": "/components/add-recipe-plan-sheet/index",
+    "app-top-navigation": "/components/app-top-navigation/index",
+    "login-sheet": "/components/login-sheet/index"
+  },
+  "enablePullDownRefresh": false
+}

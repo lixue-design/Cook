@@ -1,0 +1,24 @@
+<view class="search-page">
+  <view class="search-navigation" style="height: {{navigationBottom}}px;">
+    <view class="status-space" style="height: {{statusBarHeight}}px;"></view>
+    <view class="navigation-row">
+      <button class="back-button" aria-label="返回" bindtap="onBack"><view></view></button>
+    </view>
+  </view>
+
+  <view class="search-box" style="top: {{searchTop}}px;">
+    <search-field value="{{query}}" focus="{{searchFocus}}" bindinput="onSearchInput" bindconfirm="onSearchConfirm" bindclear="onClear" />
+  </view>
+
+  <scroll-view wx:if="{{query}}" class="result-scroll" style="top: {{resultTop}}px;" scroll-y>
+    <recipe-search-results class="result-list" recipes="{{results}}" bindrecipe="onRecipeTap" bindtoggle="onAddPlan" />
+  </scroll-view>
+
+  <add-recipe-plan-sheet
+    visible="{{addPlanVisible}}"
+    bindclose="onCloseAddPlan"
+    bindafterclose="onAddPlanAfterClose"
+    bindconfirm="onConfirmAddPlan"
+  />
+  <login-sheet visible="{{globalLoginSheetVisible}}" />
+</view>

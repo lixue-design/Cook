@@ -1,0 +1,39 @@
+{
+  "pages": [
+    "pages/recipe-list/index",
+    "pages/meal-plan/index",
+    "pages/plan-display-settings/index",
+    "pages/shopping-list/index",
+    "pages/profile/index",
+    "pages/profile-edit/index",
+    "pages/about/index",
+    "pages/feedback/index",
+    "pages/login/index",
+    "pages/agreement/index",
+    "pages/account-cancel/index",
+    "pages/month-plan/index",
+    "pages/recipe-create/index",
+    "pages/recipe-search/index",
+    "pages/plan-create/index",
+    "pages/recipe-detail/index"
+  ],
+  "window": {
+    "backgroundColor": "#F2F3F9",
+    "navigationStyle": "custom",
+    "navigationBarTextStyle": "black"
+  },
+  "sitemapLocation": "sitemap.json",
+  "tabBar": {
+    "custom": true,
+    "color": "#A3A3A3",
+    "selectedColor": "#191919",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "list": [
+      { "pagePath": "pages/recipe-list/index", "text": "食谱" },
+      { "pagePath": "pages/meal-plan/index", "text": "计划" },
+      { "pagePath": "pages/shopping-list/index", "text": "菜篮" },
+      { "pagePath": "pages/profile/index", "text": "我的" }
+    ]
+  }
+}

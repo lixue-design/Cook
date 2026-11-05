@@ -1,0 +1,28 @@
+<view class="agreement-page">
+  <view class="status-space" style="height: {{statusBarHeight}}px;"></view>
+  <view class="agreement-nav"><button bindtap="goBack">‹</button><text>{{title}}</text><view></view></view>
+  <scroll-view class="agreement-scroll" scroll-y>
+    <view wx:if="{{type === 'terms'}}" class="agreement-body">
+      <text class="updated">更新日期：2026年7月31日</text>
+      <text class="heading">一、服务说明</text>
+      <text>半勺为用户提供菜谱记录、用餐计划和采购清单管理服务。请妥善使用账户，并对自行录入的内容负责。</text>
+      <text class="heading">二、用户内容</text>
+      <text>用户应确保上传的文字和图片拥有合法使用权，不得利用本服务发布违法或侵权内容。</text>
+      <text class="heading">三、服务变更</text>
+      <text>我们会在合理范围内维护服务稳定性。必要的功能或规则调整会通过小程序页面告知。</text>
+      <text class="heading">四、联系我们</text>
+      <text>如对本协议有疑问，可通过小程序“我的”页面提供的反馈方式联系我们。</text>
+    </view>
+    <view wx:else class="agreement-body">
+      <text class="updated">更新日期：2026年7月31日</text>
+      <text class="heading">一、我们处理的信息</text>
+      <text>登录时处理微信提供的用户标识；经你授权后，可处理昵称和头像。我们不获取手机号。</text>
+      <text class="heading">二、使用目的</text>
+      <text>上述信息用于识别账户、隔离和同步你的菜谱、用餐计划及菜篮数据。</text>
+      <text class="heading">三、存储与保护</text>
+      <text>用户数据按账户隔离保存。我们采取合理安全措施保护信息，不在小程序端保存服务端密钥。</text>
+      <text class="heading">四、你的权利</text>
+      <text>你可以退出登录，并可在“我的”页面申请注销账户。注销申请的处理进度以页面说明为准。</text>
+    </view>
+  </scroll-view>
+</view>

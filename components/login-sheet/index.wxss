@@ -1,0 +1,15 @@
+:host { display: block; }
+.login-sheet { position: relative; width: 100%; height: 100%; color: #000; background: #fff; }
+.login-sheet-brand { position: absolute; top: 130rpx; left: 32rpx; display: flex; align-items: center; justify-content: center; width: 144rpx; height: 144rpx; border-radius: 40rpx; background: #fff; }
+.login-sheet-brand image { display: block; width: 98rpx; height: 98rpx; }
+.login-sheet-copy { position: absolute; top: 338rpx; left: 56rpx; display: flex; flex-direction: column; gap: 8rpx; align-items: flex-start; width: 668rpx; color: #000; font-size: 40rpx; font-weight: 400; letter-spacing: 4rpx; line-height: 64rpx; white-space: nowrap; }
+.login-agreement { position: absolute; left: 32rpx; display: flex; align-items: center; height: 48rpx; }
+.login-agreement-checkbox { position: relative; width: 32rpx; height: 32rpx; margin: 0; padding: 0; flex: 0 0 32rpx; box-sizing: border-box; border: 2rpx solid #828282; border-radius: 8rpx; background: #fff; }
+.login-agreement-checkbox::after { border: 0; }
+.login-agreement-checkbox--checked { border-color: #0a74ff; background: #0a74ff; }
+.login-agreement-checkmark { position: absolute; top: 7rpx; left: 10rpx; width: 8rpx; height: 14rpx; box-sizing: border-box; border-right: 3rpx solid #fff; border-bottom: 3rpx solid #fff; transform: rotate(45deg); }
+.login-agreement-copy { margin-left: 24rpx; color: #7b818f; font-size: 24rpx; font-weight: 400; line-height: 48rpx; white-space: nowrap; }
+.login-agreement-link { color: #0a74ff; }
+.login-sheet-button { position: absolute; right: 32rpx; left: 32rpx; display: flex; align-items: center; justify-content: center; width: auto; height: 88rpx; margin: 0; padding: 0; border-radius: 12rpx; color: #fff; background: #0a74ff; font-family: inherit; font-size: 32rpx; font-weight: 500; line-height: 52rpx; }
+.login-sheet-button::after { border: 0; }
+.login-sheet-button[disabled] { color: #fff; background: #0a74ff; opacity: .7; }

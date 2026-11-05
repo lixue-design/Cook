@@ -1,0 +1,10 @@
+{
+  "component": true,
+  "usingComponents": {
+    "search-field": "/components/search-field/index",
+    "primary-action": "/components/primary-action/index",
+    "recipe-catalog": "/components/recipe-catalog/index",
+    "recipe-search-results": "/components/recipe-search-results/index",
+    "half-screen-modal": "/components/half-screen-modal/index"
+  }
+}

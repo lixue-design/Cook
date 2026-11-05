@@ -1,0 +1,12 @@
+DROP TABLE IF EXISTS admin_audit_logs;
+DROP TABLE IF EXISTS outbox_events;
+DROP TABLE IF EXISTS asset_usage_events;
+DROP TABLE IF EXISTS generation_attempts;
+DROP TABLE IF EXISTS generation_jobs;
+DROP TABLE IF EXISTS normalization_decisions;
+DROP TABLE IF EXISTS recipes;
+DROP TABLE IF EXISTS dish_assets;
+DROP TABLE IF EXISTS dish_aliases;
+DROP TABLE IF EXISTS canonical_dishes;
+DROP FUNCTION IF EXISTS ai_dish_library_validate_merge_redirect();
+DROP FUNCTION IF EXISTS ai_dish_library_set_updated_at();

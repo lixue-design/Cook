@@ -1,0 +1,15 @@
+page { background: #f6f8fb; font-family: "PingFang SC", sans-serif; }
+
+.display-settings-page { min-height: 100vh; background: #f6f8fb; color: #000000; }
+.display-settings-safe-area { background: #ffffff; }
+.display-settings-nav { position: relative; display: flex; align-items: center; justify-content: center; height: 88rpx; box-sizing: border-box; background: #ffffff; color: #000000; font-size: 32rpx; font-weight: 400; line-height: normal; }
+.display-settings-back { position: absolute; top: 18rpx; left: 32rpx; display: flex; align-items: center; justify-content: flex-start; width: 48rpx; height: 56rpx; margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; }
+.display-settings-back::after { border: 0; }
+.display-settings-back image { display: block; width: 16.2rpx; height: 29.2rpx; }
+.display-settings-nav-placeholder { position: absolute; right: 32rpx; width: 48rpx; height: 56rpx; }
+.display-settings-card { width: 686rpx; margin: 32rpx auto 0; overflow: hidden; border-radius: 16rpx; background: #ffffff; }
+.display-settings-card-title { display: block; padding: 32rpx 32rpx 24rpx; color: #7b818f; font-size: 28rpx; font-weight: 500; line-height: 44rpx; }
+.display-settings-row { display: flex; align-items: center; justify-content: space-between; width: 100%; height: 112rpx; margin: 0; padding: 0 32rpx; box-sizing: border-box; border: 0; border-radius: 0; color: #000000; background: #ffffff; font-family: "PingFang SC", sans-serif; font-size: 32rpx; font-weight: 400; line-height: 48rpx; text-align: left; }
+.display-settings-row::after { border: 0; }
+.display-settings-row.button-hover, .display-settings-row:active { color: #000000; background: #ffffff; opacity: 1; }
+.display-settings-row image { display: block; flex: none; width: 42px; height: 24px; }

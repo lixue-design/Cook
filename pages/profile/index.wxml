@@ -1,0 +1,78 @@
+<view class="profile-page" style="padding-top: {{accountTop}}px; padding-bottom: {{tabBarHeight + 24}}px;">
+  <view wx:if="{{status === 'loading' && !user}}" class="profile-loading" aria-label="正在加载"></view>
+
+  <block wx:else>
+    <button wx:if="{{status === 'loggedOut'}}" class="account-entry account-entry--guest" hover-class="none" bindtap="goLogin" aria-label="登录或注册">
+      <view class="guest-title-row">
+        <text class="account-title">登录/注册</text>
+        <image class="login-arrow" src="/assets/profile/login-arrow.svg" mode="aspectFit" />
+      </view>
+      <text class="account-description">登录即可体验食谱管理、饮食规划、购物清单等功能</text>
+    </button>
+
+    <view wx:else class="account-entry account-entry--user" bindtap="openProfileEdit" aria-label="编辑资料">
+      <image class="account-avatar" src="{{user.avatarUrl || '/assets/profile/default-avatar.svg'}}" mode="aspectFill" />
+      <view class="account-copy">
+        <text class="account-title account-name">{{user.nickName || '半勺用户'}}</text>
+        <text class="account-description">没有什么烦恼，是一顿美食解决不了的</text>
+      </view>
+      <image class="account-more-arrow" src="/assets/profile/account-more-arrow.svg" mode="aspectFit" />
+    </view>
+
+    <view class="profile-menu {{status === 'loggedOut' ? 'profile-menu--guest' : ''}}">
+      <button class="profile-menu-row" hover-class="none" bindtap="openFeedback" aria-label="我要反馈">
+        <text>我要反馈</text>
+        <image class="menu-arrow" src="/assets/profile/menu-arrow.svg" mode="aspectFit" />
+      </button>
+      <view class="profile-menu-divider"></view>
+      <button class="profile-menu-row" hover-class="none" bindtap="openAbout" aria-label="关于我们">
+        <text>关于我们</text>
+        <image class="menu-arrow" src="/assets/profile/menu-arrow.svg" mode="aspectFit" />
+      </button>
+    </view>
+  </block>
+
+  <action-sheet
+    visible="{{actionSheetVisible}}"
+    actions="{{actionSheetActions}}"
+    bindselect="onMoreActionSelect"
+    bindclose="closeMore"
+  />
+
+  <half-screen-modal
+    visible="{{loginSheetVisible}}"
+    height="832rpx"
+    show-close="{{true}}"
+    close-icon="/assets/login-sheet/close.svg"
+    bindclose="closeLoginSheet"
+  >
+    <view class="login-sheet">
+      <view class="login-sheet-brand">
+        <image src="/assets/login-sheet/brand.svg" mode="aspectFit" />
+      </view>
+      <view class="login-sheet-copy">
+        <text>登录一日三餐</text>
+        <text>同步你的专属食谱・计划・菜篮</text>
+      </view>
+      <view class="login-agreement" style="bottom: {{safeAreaBottom + 62}}px;">
+        <button class="login-agreement-checkbox {{loginAgreed ? 'login-agreement-checkbox--checked' : ''}}" hover-class="none" aria-label="{{loginAgreed ? '已同意用户服务协议和隐私政策' : '同意用户服务协议和隐私政策'}}" bindtap="onLoginAgreementToggle">
+          <view wx:if="{{loginAgreed}}" class="login-agreement-checkmark"></view>
+        </button>
+        <view class="login-agreement-copy">
+          <text>我已阅读并同意</text>
+          <text class="login-agreement-link" data-type="terms" bindtap="openLoginAgreement">《用户服务协议》</text>
+          <text>和</text>
+          <text class="login-agreement-link" data-type="privacy" bindtap="openLoginAgreement">《隐私政策》</text>
+        </view>
+      </view>
+      <button
+        class="login-sheet-button"
+        hover-class="none"
+        loading="{{loggingIn}}"
+        disabled="{{loggingIn}}"
+        style="bottom: {{safeAreaBottom + 6}}px;"
+        bindtap="onWechatLogin"
+      >{{loggingIn ? '登录中…' : '立即登录'}}</button>
+    </view>
+  </half-screen-modal>
+</view>

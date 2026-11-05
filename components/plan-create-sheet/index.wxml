@@ -1,0 +1,32 @@
+<half-screen-modal visible="{{visible}}" height="calc(100vh - 184rpx)" show-close="{{true}}" bindclose="onClose" bindafterclose="onAfterClose">
+  <view class="plan-create-sheet" catchtap="noop">
+    <view class="plan-create-header">
+      <text class="plan-create-title">{{mealName}}</text>
+    </view>
+
+    <view class="plan-create-tabs">
+      <button class="plan-create-tab {{activeTab === 'catalog' ? 'plan-create-tab--active' : ''}}" hover-class="none" data-tab="catalog" bindtap="onTabTap">选择菜谱</button>
+      <button class="plan-create-tab {{activeTab === 'note' ? 'plan-create-tab--active' : ''}}" hover-class="none" data-tab="note" bindtap="onTabTap">随手记</button>
+    </view>
+
+    <block wx:if="{{activeTab === 'catalog'}}">
+      <view class="plan-create-search">
+        <search-field value="{{query}}" focus="{{searchFocus}}" bindinput="onSearchInput" bindconfirm="onSearchConfirm" bindclear="onSearchClear" bindfocus="onSearchFocus" bindblur="onSearchBlur" />
+      </view>
+      <view wx:if="{{!query}}" class="plan-create-catalog" style="bottom: {{contentBottom}}px;">
+        <recipe-catalog groups="{{groups}}" selected-ids="{{selectedIds}}" selection-mode bindrecipe="onRecipeTap" bindtoggle="onToggleRecipe" />
+      </view>
+      <scroll-view wx:else class="plan-create-results" style="bottom: {{contentBottom}}px;" scroll-y enhanced show-scrollbar="{{false}}">
+        <recipe-search-results recipes="{{results}}" selected-ids="{{selectedIds}}" bindrecipe="onRecipeTap" bindtoggle="onToggleRecipe" />
+      </scroll-view>
+    </block>
+
+    <view wx:else class="plan-create-note">
+      <input class="plan-create-note-input" value="{{note}}" placeholder="请输入" placeholder-class="plan-create-note-placeholder" focus="{{noteFocus}}" confirm-type="done" bindinput="onNoteInput" bindconfirm="onConfirm" />
+    </view>
+
+    <view class="plan-create-footer" style="bottom: {{keyboardHeight}}px; height: {{footerHeight}}px;">
+      <primary-action text="{{activeTab === 'catalog' ? '确定（已选' + selectedIds.length + '项）' : '确定'}}" bindpress="onConfirm" />
+    </view>
+  </view>
+</half-screen-modal>

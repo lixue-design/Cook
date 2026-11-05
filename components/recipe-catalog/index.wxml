@@ -1,0 +1,23 @@
+<view class="catalog-shell">
+  <scroll-view class="catalog-sidebar" scroll-y enhanced show-scrollbar="{{false}}">
+    <button wx:for="{{displayGroups}}" wx:key="id" class="catalog-tab {{index === activeIndex ? 'catalog-tab--active' : ''}}" data-index="{{index}}" bindtap="onCategoryTap"><view class="catalog-tab-label"><text wx:for="{{item.nameLines}}" wx:for-item="nameLine" wx:key="*this" class="catalog-tab-line">{{nameLine}}</text></view></button>
+  </scroll-view>
+  <view class="catalog-rail"><view class="catalog-rail-base"></view><view class="catalog-rail-active" style="top: {{activeIndicatorTop}}rpx;"></view></view>
+  <scroll-view class="catalog-recipes" scroll-y enhanced show-scrollbar="{{false}}" scroll-with-animation scroll-into-view="{{scrollIntoView}}" scroll-top="{{scrollTop}}" bindscroll="onScroll">
+    <view wx:for="{{displayGroups}}" wx:for-index="groupIndex" wx:key="id" id="catalog-{{item.id}}" class="catalog-section">
+      <text class="catalog-section-title">{{item.name}}</text>
+      <view class="catalog-list">
+        <view wx:for="{{item.recipes}}" wx:for-item="recipe" wx:key="id" class="catalog-item" data-id="{{recipe.id}}" bindtap="onRecipeTap">
+          <view class="catalog-cover-frame">
+            <image class="catalog-cover" src="{{recipe.coverUrl}}" mode="aspectFill" lazy-load="{{true}}" />
+          </view>
+          <view class="catalog-copy">
+            <text class="catalog-title">{{recipe.title}}</text>
+          </view>
+          <button class="catalog-action {{recipe.selected ? 'catalog-action--selected' : ''}}" data-id="{{recipe.id}}" data-recipe="{{recipe}}" catchtap="onActionTap">{{recipe.selected ? '已添加' : '加计划'}}</button>
+        </view>
+      </view>
+    </view>
+    <view class="catalog-tail"></view>
+  </scroll-view>
+</view>

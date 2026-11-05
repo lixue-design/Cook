@@ -1,0 +1,80 @@
+<view wx:if="{{isTextGeneration}}" class="text-generation-page">
+  <view class="editor-navigation" style="height: {{navBarHeight}}px;">
+    <button class="editor-back" style="top: {{menuButtonTop}}px; height: {{menuButtonHeight}}px;" hover-class="none" bindtap="onBack" aria-label="返回">
+      <image src="/assets/icons/detail-back.svg" mode="aspectFit" />
+    </button>
+  </view>
+
+  <textarea
+    class="text-generation-input"
+    style="top: {{navBarHeight}}px; height: {{textGenerationInputHeight}}px;"
+    value="{{textGenerationValue}}"
+    maxlength="10000"
+    placeholder="输入或粘贴文本，智能拆分食材与制作步骤"
+    placeholder-class="text-generation-placeholder"
+    disable-default-padding
+    show-confirm-bar="{{false}}"
+    bindinput="onTextGenerationInput"
+  />
+
+  <view class="text-generation-footer" style="height: {{bottomActionHeight}}px;">
+    <button class="text-generation-confirm" loading="{{textGenerating}}" disabled="{{textGenerating}}" hover-class="none" bindtap="onConfirmText">确定</button>
+  </view>
+</view>
+
+<view wx:else class="recipe-editor">
+  <view class="editor-navigation" style="height: {{navBarHeight}}px;">
+    <button class="editor-back" style="top: {{menuButtonTop}}px; height: {{menuButtonHeight}}px;" hover-class="none" bindtap="onBack" aria-label="返回">
+      <image src="/assets/icons/detail-back.svg" mode="aspectFit" />
+    </button>
+  </view>
+
+  <scroll-view class="editor-scroll" style="top: {{navBarHeight}}px; bottom: {{bottomActionHeight}}px;" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="editor-top-form">
+      <view class="recipe-name-field">
+        <input class="recipe-name-input" value="{{form.name}}" maxlength="12" placeholder="请输入菜品名称，如西红柿炒鸡蛋" placeholder-class="recipe-name-placeholder" bindinput="onNameInput" bindblur="onNameBlur" />
+      </view>
+      <view class="editor-line"></view>
+      <button class="editor-row editor-image-row" hover-class="none" bindtap="onChooseCover">
+        <view class="editor-row-leading"><text class="editor-row-label">图片</text><view class="image-picker {{form.coverUrl ? 'image-picker--filled' : ''}}"><image wx:if="{{form.coverUrl}}" class="selected-image" src="{{form.coverUrl}}" mode="aspectFill" /><image wx:else class="camera-icon" src="/assets/add-recipe/camera.svg" mode="aspectFit" /></view></view>
+        <image class="editor-chevron" src="/assets/add-recipe/chevron.svg" mode="aspectFit" />
+      </button>
+      <view class="editor-line"></view>
+      <picker class="category-picker-shell" mode="selector" range="{{categories}}" value="{{categoryIndex}}" bindchange="onCategoryChange">
+        <view class="editor-row category-picker">
+          <text class="editor-row-label">分类</text><text class="category-value {{form.category ? '' : 'editor-placeholder'}}">{{form.category || '请选择'}}</text><image class="editor-chevron" src="/assets/add-recipe/chevron.svg" mode="aspectFit" />
+        </view>
+      </picker>
+    </view>
+
+    <view class="editor-section-gap"></view>
+    <view class="editor-section ingredient-section">
+      <text class="editor-section-title">食材</text>
+      <view class="ingredient-input-wrap">
+        <textarea class="ingredient-input" value="{{form.mainIngredients}}" maxlength="2000" placeholder="多个食材用逗号分隔，食材用量用数字，如：番茄2个，鸡蛋3个" placeholder-class="ingredient-placeholder" auto-height disable-default-padding show-confirm-bar="{{false}}" bindinput="onIngredientInput" bindblur="onIngredientBlur" />
+      </view>
+    </view>
+
+    <view class="editor-section-gap"></view>
+    <view class="editor-section steps-section">
+      <text class="editor-section-title">制作步骤</text>
+      <view wx:for="{{form.steps}}" wx:key="id" class="step-editor">
+        <view class="step-swipe" data-step-id="{{item.id}}" data-step-index="{{index}}" bindtouchstart="onStepTouchStart" bindtouchend="onStepTouchEnd">
+          <view class="step-swipe-track {{swipedStepId === item.id ? 'step-swipe-track--open' : ''}}">
+            <view class="step-input-row">
+              <button class="step-image-picker {{item.imageUrl ? 'step-image-picker--filled' : ''}}" hover-class="none" data-index="{{index}}" bindtap="onChooseStepImage"><image wx:if="{{item.imageUrl}}" class="selected-image" src="{{item.imageUrl}}" mode="aspectFill" /><image wx:else class="camera-icon" src="/assets/add-recipe/camera.svg" mode="aspectFit" /></button>
+              <textarea class="step-input" value="{{item.text}}" maxlength="500" auto-height placeholder="请输入" placeholder-class="native-placeholder" disable-default-padding show-confirm-bar="{{false}}" data-index="{{index}}" bindinput="onStepInput" bindblur="onStepBlur" />
+            </view>
+            <button wx:if="{{item.text || item.imageUrl}}" class="step-delete-action" hover-class="none" data-index="{{index}}" bindtap="onRemoveStep">移除</button>
+          </view>
+        </view>
+        <view class="editor-line"></view>
+      </view>
+      <button class="add-step" hover-class="none" bindtap="onAddStep"><image src="/assets/add-recipe/add-step.svg" mode="aspectFit" /><text>新增步骤</text></button>
+    </view>
+    <view class="editor-bottom-filler"></view>
+  </scroll-view>
+
+  <view class="editor-footer" style="height: {{bottomActionHeight}}px;"><button class="submit-button" loading="{{submitting}}" disabled="{{submitting}}" hover-class="none" bindtap="onSubmit">提交</button></view>
+  <login-sheet visible="{{globalLoginSheetVisible}}" />
+</view>

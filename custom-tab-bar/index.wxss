@@ -1,0 +1,9 @@
+.tabbar-shell { box-sizing: border-box; background: #FFF; box-shadow: 0 -8rpx 32rpx rgba(60,95,155,.04); font-family: "PingFang SC", -apple-system, BlinkMacSystemFont, sans-serif; }
+.tabbar-row { height: 112rpx; display: flex; align-items: flex-start; justify-content: space-between; padding: 0; box-sizing: border-box; }
+/* Keep the icon centres aligned to the design while each tab owns a full quarter-width touch target. */
+.tab-item { min-width: 0; height: 112rpx; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 22rpx 0 0; border-radius: 0; background: #FFF; color: #4E5461; font-size: 20rpx; font-weight: 400; letter-spacing: 0; line-height: 28rpx; box-sizing: border-box; }
+.tab-item--plan { flex: 1; }
+.tab-item::after { border: 0; }
+.tab-icon { width: 48rpx; height: 48rpx; display: block; flex: 0 0 48rpx; }
+.tab-label { margin-top: 8rpx; width: 100%; color: inherit; font-size: 20rpx; font-weight: inherit; line-height: 28rpx; text-align: center; white-space: nowrap; }
+.tab-item--selected { color: #0A74FF; font-weight: 500; }

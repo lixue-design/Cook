@@ -1,0 +1,12 @@
+{
+  "navigationStyle": "custom",
+  "enablePullDownRefresh": false,
+  "usingComponents": {
+    "floating-add": "/components/floating-add/index",
+    "date-range-switcher": "/components/date-range-switcher/index",
+    "half-screen-modal": "/components/half-screen-modal/index",
+    "action-sheet": "/components/action-sheet/index",
+    "app-top-navigation": "/components/app-top-navigation/index",
+    "login-sheet": "/components/login-sheet/index"
+  }
+}

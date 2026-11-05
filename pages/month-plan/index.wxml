@@ -1,0 +1,50 @@
+<view class="month-page">
+  <view class="month-navigation" style="height: {{navigationBottom}}px;">
+    <view class="status-space" style="height: {{statusBarHeight}}px;"></view>
+    <view class="navigation-row">
+      <button class="back-button" aria-label="返回" bindtap="onBack"><view></view></button>
+      <text class="navigation-title">月计划</text>
+    </view>
+    <view class="navigation-line"></view>
+  </view>
+
+  <view class="month-content" style="top: {{contentTop}}px;">
+    <view class="month-toolbar">
+      <button class="month-step" hover-class="none" bindtap="onPrevMonth">‹</button>
+      <view class="month-heading">
+        <text class="month-title">{{monthTitle}}</text>
+        <text class="month-subtitle">{{plannedDays}}/{{totalDays}} 天已有计划</text>
+      </view>
+      <button class="month-step" hover-class="none" bindtap="onNextMonth">›</button>
+    </view>
+
+    <view class="weekday-row">
+      <text wx:for="{{weekdays}}" wx:key="*this">{{item}}</text>
+    </view>
+
+    <view wx:if="{{status === 'loading'}}" class="month-state">正在加载月计划…</view>
+    <view wx:elif="{{status === 'error'}}" class="month-state month-state--error">
+      <text>月计划加载失败</text>
+      <button bindtap="onRetry">重新加载</button>
+    </view>
+    <scroll-view wx:else class="month-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+      <view wx:if="{{status === 'empty'}}" class="month-empty">本月暂无计划</view>
+      <view class="calendar-grid">
+        <view wx:for="{{calendarDays}}" wx:key="id" class="calendar-cell {{item.placeholder ? 'calendar-cell--placeholder' : ''}} {{item.hasItems ? 'calendar-cell--filled' : ''}}">
+          <block wx:if="{{!item.placeholder}}">
+            <view class="cell-head">
+              <text class="cell-day">{{item.day}}</text>
+              <text class="cell-weekday">{{item.weekday}}</text>
+            </view>
+            <view class="meal-lines">
+              <view wx:for="{{item.mealSummaries}}" wx:for-item="meal" wx:key="type" class="meal-line {{meal.count ? 'meal-line--filled' : ''}}">
+                <text class="meal-label">{{meal.label}}</text>
+                <text class="meal-text">{{meal.text || '未安排'}}</text>
+              </view>
+            </view>
+          </block>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+</view>

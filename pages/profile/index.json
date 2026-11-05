@@ -1,0 +1,7 @@
+{
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "action-sheet": "/components/action-sheet/index",
+    "half-screen-modal": "/components/half-screen-modal/index"
+  }
+}

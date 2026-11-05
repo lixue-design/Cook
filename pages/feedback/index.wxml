@@ -1,0 +1,39 @@
+<view class="feedback-page">
+  <view class="feedback-navigation" style="height: {{navigationBottom}}px;">
+    <view class="status-space" style="height: {{statusBarHeight}}px;"></view>
+    <view class="feedback-navigation-row">
+      <button class="feedback-back" hover-class="none" aria-label="返回" bindtap="goBack"><image src="/assets/about/back.svg" mode="aspectFit" /></button>
+      <text class="feedback-navigation-title">我要反馈</text>
+    </view>
+    <view class="feedback-navigation-line"></view>
+  </view>
+
+  <scroll-view class="feedback-scroll" style="top: {{navigationBottom}}px; bottom: 160rpx;" scroll-y>
+    <view class="feedback-card">
+      <text class="feedback-label">反馈内容</text>
+      <textarea class="feedback-textarea" value="{{content}}" placeholder="请描述你遇到的问题或建议" placeholder-class="feedback-placeholder" maxlength="500" auto-height="{{true}}" disable-default-padding="{{true}}" bindinput="onContentInput" />
+      <text class="feedback-counter">{{content.length}} / 500</text>
+    </view>
+
+    <view class="feedback-card feedback-card--images">
+      <view class="feedback-image-heading">
+        <text class="feedback-label">上传图片</text>
+        <text class="feedback-optional">选填，最多 3 张</text>
+      </view>
+      <view class="feedback-image-grid">
+        <view wx:for="{{images}}" wx:key="*this" class="feedback-image-item">
+          <image src="{{item}}" mode="aspectFill" />
+          <button class="feedback-image-delete" hover-class="none" data-index="{{index}}" aria-label="删除图片" bindtap="onDeleteImage">×</button>
+        </view>
+        <button wx:if="{{images.length < 3}}" class="feedback-image-add" hover-class="none" bindtap="onAddImage">
+          <text class="feedback-image-add-icon">+</text>
+          <text>添加图片</text>
+        </button>
+      </view>
+    </view>
+  </scroll-view>
+
+  <view class="feedback-bottom-action">
+    <button class="feedback-submit" hover-class="none" loading="{{submitting}}" disabled="{{submitting}}" bindtap="onSubmit">保存反馈</button>
+  </view>
+</view>

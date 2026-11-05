@@ -1,0 +1,18 @@
+<view class="search-field">
+  <image class="search-field-icon" src="/assets/search/search.svg" mode="aspectFit" />
+  <input
+    class="search-field-input"
+    value="{{value}}"
+    placeholder="{{placeholder}}"
+    placeholder-class="search-field-placeholder"
+    focus="{{focus}}"
+    confirm-type="done"
+    bindinput="onInput"
+    bindconfirm="onConfirm"
+    bindfocus="onFocus"
+    bindblur="onBlur"
+  />
+  <button wx:if="{{value}}" class="search-field-clear" aria-label="清空" catchtap="onClear">
+    <image src="/assets/search/clear.svg" mode="aspectFit" />
+  </button>
+</view>

@@ -1,0 +1,128 @@
+<view class="page-shell">
+  <view class="header {{headerShadow ? 'header--scrolled' : ''}}" style="height: {{navigationBottom}}px;">
+    <app-top-navigation title="食谱" actions="{{topNavigationActions}}" layout="{{topNavigationLayout}}" bindaction="onTopNavigationAction" />
+    <view class="header-divider"></view>
+  </view>
+
+  <view class="content" style="top: {{contentTop}}px; bottom: {{tabBarHeight}}px;" wx:if="{{status === 'success'}}">
+    <recipe-catalog groups="{{groups}}" bindrecipe="onRecipeTap" bindtoggle="onAddPlan" bindscroll="onRecipeCatalogScroll" bindloadmore="onRecipeCatalogLoadMore" />
+  </view>
+
+  <view wx:elif="{{status === 'loading'}}" class="recipe-skeleton" style="top: {{contentTop}}px; bottom: {{tabBarHeight}}px;">
+    <view class="recipe-skeleton-sidebar">
+      <view wx:for="{{skeletonRows}}" wx:key="*this" class="recipe-skeleton-tab skeleton-block"></view>
+    </view>
+    <view class="recipe-skeleton-content">
+      <view class="recipe-skeleton-heading skeleton-block"></view>
+      <view wx:for="{{skeletonRows}}" wx:key="*this" class="recipe-skeleton-row">
+        <view class="recipe-skeleton-cover skeleton-block"></view>
+        <view class="recipe-skeleton-copy"><view class="recipe-skeleton-title skeleton-block"></view><view class="recipe-skeleton-action skeleton-block"></view></view>
+      </view>
+    </view>
+  </view>
+  <view wx:elif="{{status === 'empty'}}" class="state-panel empty-panel recipe-empty-panel" style="top: {{contentTop}}px; bottom: {{tabBarHeight}}px;">
+    <image class="recipe-empty-illustration" src="/assets/recipe-list/empty-recipes.svg" mode="scaleToFill" />
+    <view class="recipe-empty-copy">
+      <text class="recipe-empty-title">没有菜谱</text>
+      <text class="empty-tip">点击 + 按钮即可添加</text>
+    </view>
+  </view>
+  <view wx:else class="state-panel empty-panel" style="top: {{contentTop}}px; bottom: {{tabBarHeight}}px;">
+    <text>食谱加载失败</text><text class="empty-tip">请检查网络后重试</text>
+    <button class="state-retry" bindtap="onRetryLoad">重新加载</button>
+  </view>
+
+  <floating-add bindtap="onOpenCreateSheet" />
+
+  <half-screen-modal visible="{{createSheetVisible}}" height="{{createSheetHeight}}" bottom-offset="{{createKeyboardHeight + 'px'}}" show-close="{{true}}" bindclose="onCloseCreateSheet" bindafterclose="onCreateSheetAfterClose">
+    <view wx:if="{{createSheetMode === 'choose'}}" class="create-sheet-content">
+      <view class="create-sheet-header">
+        <text class="create-sheet-title">新增菜谱</text>
+      </view>
+
+      <button class="create-link-entry" bindtap="onChooseCreateLink">
+        <image class="create-platform-logos" src="/assets/add-recipe/platforms.svg" />
+        <view class="create-link-copy">
+          <text class="create-link-title">链接导入</text>
+          <text class="create-link-tip">按规则生成可编辑草稿</text>
+        </view>
+      </button>
+
+      <view class="create-method-row">
+        <button class="create-method-card" bindtap="onChooseCreateImage"><image src="/assets/add-recipe/image-recognition.svg" /><text>图片生成</text></button>
+        <button class="create-method-card" bindtap="onChooseCreateText"><image src="/assets/add-recipe/text-recognition.svg" /><text>文字生成</text></button>
+        <button class="create-method-card" bindtap="onChooseCreateManual"><image src="/assets/add-recipe/manual-entry.svg" /><text>手动填写</text></button>
+      </view>
+    </view>
+
+    <view wx:else class="create-sheet-content">
+      <view class="create-sheet-header">
+        <text class="create-sheet-title">粘贴链接</text>
+      </view>
+      <textarea class="create-link-textarea" value="{{createLinkValue}}" focus="{{createLinkFocus}}" adjust-position="{{false}}" cursor-spacing="24" placeholder="粘贴抖音、哔哩哔哩、小红书等菜谱链接" placeholder-class="create-form-placeholder" maxlength="-1" bindinput="onCreateLinkInput" />
+      <button class="create-primary-button create-link-confirm" bindtap="onConfirmCreateLink">确定</button>
+    </view>
+  </half-screen-modal>
+
+  <add-recipe-plan-sheet
+    visible="{{addPlanVisible}}"
+    bindclose="onCloseAddPlan"
+    bindafterclose="onAddPlanAfterClose"
+    bindconfirm="onConfirmAddPlan"
+  />
+
+  <half-screen-modal visible="{{categoryModalVisible}}" height="calc(100vh - 182rpx)" show-close="{{true}}" bindclose="onCloseCategoryModal" bindafterclose="onCategoryModalAfterClose">
+    <view class="manage-sheet-content">
+      <text class="manage-sheet-title">全部分类</text>
+      <view class="manage-category-list">
+        <view
+          class="manage-category-item {{categoryDraggingId === item.id ? 'manage-category-item--dragging' : ''}} {{categoryDraggingId && categoryDragTargetIndex === index && categoryDraggingId !== item.id ? 'manage-category-item--drop-target' : ''}} {{categoryDraggingId && categoryDragTargetIndex === manageCategories.length && index === manageCategories.length - 1 ? 'manage-category-item--drop-after' : ''}}"
+          style="transform: {{categoryDraggingId === item.id ? 'translateY(' + categoryDragOffset + 'rpx)' : 'none'}};"
+          wx:for="{{manageCategories}}"
+          wx:key="id"
+        >
+          <view
+            class="manage-category-name-wrap"
+            data-index="{{index}}"
+            bindtouchstart="onCategoryDragStart"
+            catchtouchmove="onCategoryDragMove"
+            bindtouchend="onCategoryDragEnd"
+            bindtouchcancel="onCategoryDragCancel"
+          >
+            <image class="manage-drag-icon" src="/assets/category/drag.svg" />
+            <text class="manage-category-name">{{item.name}}</text>
+          </view>
+          <view class="manage-category-actions">
+            <button data-id="{{item.id}}" data-name="{{item.name}}" bindtap="onCategoryEdit"><image src="/assets/category/edit.svg" /></button>
+            <button data-id="{{item.id}}" hover-class="none" bindtap="onCategoryDelete"><image src="/assets/category/delete.svg" /></button>
+          </view>
+        </view>
+      </view>
+      <view class="manage-category-bottom"><button bindtap="onCategoryCreate">新建分类</button></view>
+    </view>
+  </half-screen-modal>
+
+  <view wx:if="{{categoryDialogVisible}}" class="text-entry-dialog-layer" style="bottom: {{categoryKeyboardHeight}}px;" catchtap="noop" catchtouchmove="noop">
+    <view class="text-entry-dialog {{categoryDialogMode === 'delete' ? 'text-entry-dialog--message' : ''}}" catchtap="noop">
+      <text class="text-entry-dialog-title">{{categoryDialogMode === 'rename' ? '重命名' : categoryDialogMode === 'create' ? '新增分类' : '确定删除分类？'}}</text>
+      <input
+        wx:if="{{categoryDialogMode !== 'delete'}}"
+        class="text-entry-dialog-input"
+        value="{{categoryDialogValue}}"
+        placeholder="{{categoryDialogMode === 'create' ? '最多8个字' : ''}}"
+        placeholder-class="text-entry-dialog-placeholder"
+        maxlength="8"
+        focus="{{categoryKeyboardFocus}}"
+        adjust-position="false"
+        bindinput="onCategoryDialogInput"
+        bindconfirm="onCategoryDialogConfirm"
+      />
+      <text wx:else class="text-entry-dialog-message">分类内现有 {{categoryDialogRecipeCount}} 道菜谱，删除后这些菜谱会变为无分类状态</text>
+      <view class="text-entry-dialog-actions">
+        <button class="text-entry-dialog-cancel" hover-class="none" bindtap="onCategoryDialogCancel">取消</button>
+        <button class="text-entry-dialog-confirm" hover-class="none" bindtap="onCategoryDialogConfirm">确定</button>
+      </view>
+    </view>
+  </view>
+  <login-sheet visible="{{globalLoginSheetVisible}}" />
+</view>

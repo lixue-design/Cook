@@ -1,0 +1,149 @@
+<view class="plan-page" bindtap="onPageTap">
+  <view class="top-area top-area--{{planMode}} {{planMode === 'day' && dayScrolled ? 'top-area--scrolled' : ''}}" style="height: {{planMode === 'day' ? dayHeaderHeight : weekHeaderHeight}}px;">
+    <app-top-navigation title="{{planMode === 'day' ? '日计划' : '周计划'}}" actions="{{topNavigationActions}}" layout="{{topNavigationLayout}}" title-interactive show-title-indicator title-indicator-rotated="{{planMode === 'week'}}" bindtitle="onTopNavigationTitle" bindaction="onTopNavigationAction" />
+    <view style="height: {{weekHeaderHeight}}px;"></view>
+    <scroll-view wx:if="{{planMode === 'day'}}" class="week-slider" scroll-x show-scrollbar="false" bindtouchstart="onWeekTouchStart" bindtouchend="onWeekTouchEnd">
+      <view class="week-row {{weekSliderMotion}}">
+        <button wx:for="{{weekDates}}" wx:key="id" class="date-cell" data-date="{{item.id}}" bindtap="onDateTap">
+          <text class="weekday">{{item.weekday}}</text>
+          <text class="date-number {{item.today ? 'today' : ''}} {{item.id === selectedDate ? 'selected' : ''}}">{{item.day}}</text>
+        </button>
+      </view>
+    </scroll-view>
+  </view>
+
+  <scroll-view wx:if="{{planMode === 'day'}}" class="plan-scroll {{panelMotion}}" style="top: {{dayContentTop}}px; bottom: {{tabBarHeight}}px;" scroll-y="{{!dayDragActive}}" scroll-into-view="{{dayScrollIntoView}}" enhanced bounces="{{!dayDragActive}}" bindscroll="onDayScroll">
+    <view id="day-plan-top" class="day-plan-top-anchor"></view>
+    <view wx:if="{{dayStatus === 'loading'}}" class="plan-day-skeleton">
+      <view wx:for="{{skeletonMeals}}" wx:key="*this" class="plan-day-skeleton-meal">
+        <view class="plan-day-skeleton-head"><view class="plan-skeleton-icon plan-skeleton-block"></view><view class="plan-skeleton-label plan-skeleton-block"></view><view class="plan-skeleton-add plan-skeleton-block"></view></view>
+        <view class="plan-day-skeleton-card"><view class="plan-skeleton-cover plan-skeleton-block"></view><view class="plan-skeleton-title plan-skeleton-block"></view></view>
+      </view>
+    </view>
+    <view wx:elif="{{dayStatus === 'error'}}" class="weekly-state weekly-state--error"><text>日计划加载失败</text><button bindtap="retryDayPlan">重新加载</button></view>
+    <view wx:else class="day-plan-content">
+      <view class="meal-section meal-section--{{item.id}}" data-meal-index="{{mealIndex}}" wx:for="{{mealPlans}}" wx:for-index="mealIndex" wx:key="id">
+        <view class="meal-head">
+          <view class="meal-label">
+            <view class="meal-icon"><image src="/assets/meal-plan/{{item.id}}.svg" mode="aspectFit" /></view>
+            <text>{{item.name}}</text>
+          </view>
+          <button class="meal-add" hover-class="none" data-meal="{{item.id}}" bindtap="onAddMeal">
+            <image class="meal-add-icon" src="/assets/meal-plan/add.svg" mode="aspectFit" />
+          </button>
+        </view>
+        <view wx:if="{{dayDragActive && dayDragTargetMealIndex === mealIndex && !item.recipes.length}}" class="empty-meal day-empty-drop-target"><view class="day-drop-line"></view></view>
+        <button wx:elif="{{!item.recipes.length}}" class="empty-meal" data-meal="{{item.id}}" bindtap="onAddMeal">
+          <image class="empty-plus" src="/assets/meal-plan/add-empty.svg" mode="aspectFit" />
+          <text>添加{{item.name}}</text>
+        </button>
+        <view wx:else class="meal-list">
+          <view wx:if="{{dayDragActive && dayDragTargetMealIndex === mealIndex && dayDragIndicatorIndex === 0}}" class="day-drop-line"></view>
+          <block wx:for="{{item.recipes}}" wx:for-item="recipe" wx:for-index="recipeIndex" wx:key="id">
+            <view class="swipe-area {{dayDraggingId === recipe.id && dayDragMealIndex === mealIndex ? 'swipe-area--dragging' : ''}}" data-id="{{recipe.id}}" data-plan-key="{{recipe.planKey}}" data-meal-index="{{mealIndex}}" data-recipe-index="{{recipeIndex}}">
+              <button class="remove-button {{swipeId === recipe.planKey ? 'remove-button--visible' : ''}}" data-id="{{recipe.id}}" data-plan-key="{{recipe.planKey}}" data-meal-index="{{mealIndex}}" data-recipe-index="{{recipeIndex}}" catchtap="onDeletePlan">移除</button>
+              <view class="plan-card {{deletingId === recipe.planKey ? 'plan-card--deleting' : ''}} {{dayDraggingId === recipe.id && dayDragMealIndex === mealIndex ? 'plan-card--dragging' : ''}}" style="transform:translate3d(-{{swipeId === recipe.planKey ? swipeOffset : 0}}rpx, {{dayDraggingId === recipe.id && dayDragMealIndex === mealIndex ? dayDragOffset : 0}}rpx, 0)" data-id="{{recipe.id}}" data-plan-key="{{recipe.planKey}}" data-source="{{recipe.source}}" data-recipe-id="{{recipe.recipeId || recipe.id}}" data-meal-index="{{mealIndex}}" data-recipe-index="{{recipeIndex}}" bindtap="onRecipeTap" bindtouchstart="onCardTouchStart" bindtouchmove="onCardTouchMove" bindtouchend="onCardTouchEnd" bindtouchcancel="onCardTouchCancel">
+                <view class="recipe-cover-frame">
+                  <image class="recipe-cover" src="{{recipe.coverUrl}}" mode="aspectFill" binderror="onImageError" data-meal-index="{{mealIndex}}" data-recipe-index="{{recipeIndex}}" />
+                </view>
+                <view class="recipe-copy"><text class="recipe-title">{{recipe.title}}</text></view>
+              </view>
+            </view>
+            <view wx:if="{{dayDragActive && dayDragTargetMealIndex === mealIndex && dayDragIndicatorIndex === recipeIndex + 1}}" class="day-drop-line"></view>
+          </block>
+        </view>
+        <view wx:if="{{mealIndex < mealPlans.length - 1}}" class="meal-gap"><view class="meal-divider"></view></view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <view wx:else class="week-plan-view {{panelMotion}}" style="top: {{weekContentTop}}px; bottom: {{tabBarHeight}}px;">
+    <view class="week-plan-fixed-header {{weekScrolled ? 'week-plan-fixed-header--scrolled' : ''}}">
+      <date-range-switcher text="{{weekRangeText}}" divider-inset="32rpx" bindchange="onWeekRangeChange" bindreset="onWeekRangeReset" />
+      <view class="week-grid-header week-grid--{{visibleMeals.length}}">
+        <view class="week-day-head"></view>
+        <view wx:for="{{visibleMeals}}" wx:key="id" class="meal-column-head {{item.id}}-head">{{item.name}}</view>
+      </view>
+    </view>
+    <view wx:if="{{weeklyLoading}}" class="plan-week-skeleton">
+      <view wx:for="{{skeletonWeekRows}}" wx:key="*this" class="plan-week-skeleton-row">
+        <view class="plan-week-skeleton-day plan-skeleton-block"></view>
+        <view wx:for="{{skeletonMeals}}" wx:key="*this" class="plan-week-skeleton-cell"><view class="plan-week-skeleton-food plan-skeleton-block"></view></view>
+      </view>
+    </view>
+    <view wx:elif="{{weeklyError}}" class="weekly-state weekly-state--error"><text>周计划加载失败</text><button bindtap="retryWeeklyPlan">重新加载</button></view>
+    <scroll-view wx:else class="week-grid-scroll {{weekGridMotion}}" scroll-y="{{!weekDragActive}}" enhanced bounces="{{!weekDragActive}}" bindscroll="onWeekScroll">
+      <view class="week-grid-content week-grid--{{visibleMeals.length}}">
+        <view wx:if="{{!weeklyPlanDays.length}}" class="weekly-state">暂无本周计划</view>
+        <view wx:for="{{weeklyPlanDays}}" wx:for-item="day" wx:for-index="dayIndex" wx:key="id" class="week-grid-row {{dayIndex === weeklyPlanDays.length - 1 ? 'week-grid-row--last' : ''}}">
+          <button class="week-day-cell" data-date="{{day.id}}" bindtap="onGridDateTap">
+            <text class="grid-weekday {{day.isToday ? 'grid-weekday--today' : ''}}">{{day.weekday}}</text>
+            <view class="grid-date {{day.isToday ? 'grid-date--today' : ''}}">{{day.day}}</view>
+          </button>
+          <view wx:for="{{day.meals}}" wx:for-item="meal" wx:key="type" class="week-meal-cell {{meal.type}}-cell" data-day-index="{{dayIndex}}" data-meal-type="{{meal.type}}">
+            <view wx:if="{{weekDragActive && weekDragTargetDayIndex === dayIndex && weekDragTargetMealType === meal.type && weekDragIndicatorIndex === 0}}" class="week-drop-line"></view>
+            <block wx:for="{{meal.items}}" wx:for-item="food" wx:for-index="foodIndex" wx:key="id">
+              <view class="grid-food {{meal.type}}-food {{weekDraggingId === food.id && weekDragDayIndex === dayIndex && weekDragMealType === meal.type ? 'grid-food--dragging' : ''}}" style="transform:translate3d({{weekDraggingId === food.id && weekDragDayIndex === dayIndex && weekDragMealType === meal.type ? weekDragOffsetX : 0}}rpx, {{weekDraggingId === food.id && weekDragDayIndex === dayIndex && weekDragMealType === meal.type ? weekDragOffsetY : 0}}rpx, 0)" data-id="{{food.id}}" data-recipe-id="{{food.recipeId || ''}}" data-title="{{food.title}}" data-day-index="{{dayIndex}}" data-meal-type="{{meal.type}}" data-food-index="{{foodIndex}}" bindtap="onWeekFoodTap" bindtouchstart="onWeekFoodTouchStart" bindtouchmove="onWeekFoodTouchMove" bindtouchend="onWeekFoodTouchEnd" bindtouchcancel="onWeekFoodTouchCancel">
+                <text>{{food.title}}</text>
+              </view>
+              <view wx:if="{{weekDragActive && weekDragTargetDayIndex === dayIndex && weekDragTargetMealType === meal.type && weekDragIndicatorIndex === foodIndex + 1}}" class="week-drop-line"></view>
+            </block>
+            <block wx:for="{{meal.emptySlots}}" wx:for-item="emptySlot" wx:for-index="emptyIndex" wx:key="id">
+              <button wx:if="{{selectedEmptyCellKey === day.id + '-' + meal.type + '-' + emptyIndex}}" class="grid-add-label" hover-class="none" data-date="{{day.id}}" data-meal="{{meal.type}}" catchtap="onGridAddTap">添加食谱</button>
+              <view wx:else class="grid-empty-slot" data-key="{{day.id}}-{{meal.type}}-{{emptyIndex}}" bindtouchstart="onEmptySlotTouchStart" bindtouchmove="onEmptySlotTouchMove" bindtouchend="onEmptySlotTouchEnd" bindtouchcancel="onEmptySlotTouchCancel"></view>
+            </block>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <button wx:if="{{planMode === 'day' && showReturnToday}}" class="return-today" style="bottom: {{tabBarHeight + 92}}px;" aria-label="回到今天" bindtap="onReturnToday">
+    <image class="return-today-button" src="/assets/meal-plan/return-today-button.svg" mode="scaleToFill" />
+  </button>
+
+  <floating-add bindtap="onFloatingAddTap" />
+
+  <plan-action-sheet
+    visible="{{planActionVisible}}"
+    bindclose="onPlanActionClose"
+    bindafterclose="onPlanActionAfterClose"
+    bindchooseai="onPlanActionChooseAI"
+    bindchoosemanual="onPlanActionChooseManual"
+  />
+
+  <action-sheet
+    visible="{{planMoreVisible}}"
+    actions="{{planMoreActions}}"
+    bindselect="onPlanMoreSelect"
+    bindclose="onPlanMoreClose"
+    bindafterclose="onPlanMoreAfterClose"
+  />
+
+  <add-recipe-plan-sheet
+    visible="{{planDateVisible}}"
+    initial-date="{{planDateInitialDate}}"
+    bindclose="onPlanDateClose"
+    bindafterclose="onPlanDateAfterClose"
+    bindconfirm="onPlanDateConfirm"
+  />
+
+  <plan-create-sheet
+    visible="{{planCreateVisible}}"
+    date="{{planCreateDate}}"
+    meal="{{planCreateMeal}}"
+    bindclose="onPlanCreateClose"
+    bindafterclose="onPlanCreateAfterClose"
+    bindconfirm="onPlanCreateConfirm"
+  />
+
+  <action-sheet
+    visible="{{weekFoodActionVisible}}"
+    title="{{weekFoodActionTitle}}"
+    actions="{{weekFoodActionActions}}"
+    bindselect="onWeekFoodActionSelect"
+    bindclose="onWeekFoodActionClose"
+    bindafterclose="onWeekFoodActionAfterClose"
+  />
+  <login-sheet visible="{{globalLoginSheetVisible}}" />
+</view>

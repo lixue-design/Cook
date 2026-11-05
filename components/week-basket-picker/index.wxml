@@ -1,0 +1,1 @@
+<wheel-picker visible="{{visible}}" options="{{options}}" selected-index="0" bindclose="onClose" bindconfirm="onConfirm" />

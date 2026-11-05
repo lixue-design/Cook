@@ -1,0 +1,92 @@
+.half-screen-root {
+  position: fixed;
+  z-index: 200;
+  top: 0;
+  right: 0;
+  left: 0;
+  overflow: visible;
+}
+
+.half-screen-mask {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.6);
+  animation: half-screen-mask-in 220ms ease-out both;
+}
+
+.half-screen-panel {
+  position: absolute;
+  z-index: 1;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 16rpx 16rpx 0 0;
+  background: #ffffff;
+  box-shadow: 0 0 8rpx rgba(0, 0, 0, 0.1), inset 0 1rpx 0 #e2ebea;
+  will-change: transform;
+}
+
+.half-screen-panel--preparing {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(100%);
+}
+
+.half-screen-panel--opening { animation: half-screen-panel-in 300ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+.half-screen-panel--closing {
+  animation: half-screen-panel-out 260ms cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+.half-screen-close {
+  position: absolute;
+  z-index: 20;
+  top: 48rpx;
+  right: 32rpx;
+  width: 40rpx;
+  height: 40rpx;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.half-screen-close::after { border: 0; }
+.half-screen-close image { display: block; width: 40rpx; height: 40rpx; }
+
+.half-screen-mask--closing {
+  animation: half-screen-mask-out 260ms ease-in both;
+}
+
+@keyframes half-screen-panel-in {
+  from { opacity: 0; transform: translateY(100%); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes half-screen-panel-out {
+  from { transform: translateY(0); }
+  to { transform: translateY(100%); }
+}
+
+@keyframes half-screen-mask-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes half-screen-mask-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .half-screen-mask,
+  .half-screen-panel {
+    animation: none;
+  }
+}

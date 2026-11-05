@@ -1,0 +1,133 @@
+<view class="detail-page">
+  <view class="top-navigation" style="height: {{navBarHeight}}px;">
+    <button
+      class="back-button"
+      style="top: {{menuButtonTop}}px; height: {{menuButtonHeight}}px;"
+      bindtap="onBack"
+      aria-label="返回"
+    >
+      <image class="back-icon" src="/assets/icons/detail-back.svg" mode="aspectFit" />
+    </button>
+  </view>
+
+  <scroll-view
+    wx:if="{{status === 'success'}}"
+    class="detail-scroll"
+    style="top: {{navBarHeight}}px; bottom: {{bottomActionHeight}}px;"
+    scroll-y
+    enhanced
+    show-scrollbar="{{false}}"
+  >
+    <view class="hero-media">
+      <image
+        class="hero-image"
+        src="{{recipe.heroImageUrl}}"
+        mode="aspectFill"
+        binderror="onHeroImageError"
+      />
+    </view>
+
+    <view class="hero-copy">
+      <text class="hero-title">{{recipe.title}}</text>
+      <view wx:if="{{recipe.duration || recipe.calories}}" class="tag-row">
+        <text wx:if="{{recipe.duration}}" class="info-tag">{{recipe.duration}}</text>
+        <text wx:if="{{recipe.calories}}" class="info-tag">{{recipe.calories}}</text>
+      </view>
+    </view>
+
+    <view wx:if="{{recipe.ingredients.length || recipe.steps.length}}" class="content-divider"></view>
+
+    <view wx:if="{{recipe.ingredients.length || recipe.steps.length}}" class="detail-content">
+      <view wx:if="{{recipe.ingredients.length}}" class="ingredient-section">
+        <text class="section-heading">食材准备</text>
+        <text class="ingredient-preparation">{{recipe.ingredientPreparationText}}</text>
+      </view>
+
+      <view wx:if="{{recipe.steps.length}}" class="steps-section {{recipe.ingredients.length ? '' : 'steps-section--first'}}">
+        <text class="section-heading">制作步骤</text>
+        <view class="steps-list">
+          <view class="step-card" wx:for="{{recipe.steps}}" wx:key="index">
+            <text class="step-number">{{index + 1}}.</text>
+            <view class="step-body">
+              <text class="step-text">{{item.text}}</text>
+              <image
+                wx:if="{{item.imageUrl}}"
+                class="step-image"
+                src="{{item.imageUrl}}"
+                mode="aspectFill"
+                data-index="{{index}}"
+                bindtap="onPreviewStepImage"
+                binderror="onStepImageError"
+              />
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="scroll-bottom-spacer"></view>
+  </scroll-view>
+
+  <view
+    wx:elif="{{status === 'loading'}}"
+    class="detail-state"
+    style="top: {{navBarHeight}}px; bottom: {{bottomActionHeight}}px;"
+  >
+    <view class="spinner"></view>
+    <text>正在加载食谱…</text>
+  </view>
+  <view
+    wx:elif="{{status === 'empty'}}"
+    class="detail-state"
+    style="top: {{navBarHeight}}px; bottom: {{bottomActionHeight}}px;"
+  >
+    <text>食谱暂不存在</text>
+  </view>
+  <view
+    wx:else
+    class="detail-state"
+    style="top: {{navBarHeight}}px; bottom: 0;"
+  >
+    <text>食谱加载失败，请检查网络后重试</text>
+    <button class="detail-retry" bindtap="onRetryLoad">重新加载</button>
+  </view>
+
+  <view wx:if="{{status === 'success'}}" class="bottom-action-bar" style="height: {{bottomActionHeight}}px;">
+    <view class="action-row">
+      <button class="action-item" bindtap="onMore" aria-label="更多">
+        <image class="action-icon" src="/assets/icons/detail-more.svg" mode="aspectFit" />
+        <text>更多</text>
+      </button>
+      <button class="action-item" bindtap="onEdit" aria-label="编辑">
+        <image class="action-icon" src="/assets/icons/detail-edit-action.svg" mode="aspectFit" />
+        <text>编辑</text>
+      </button>
+      <picker class="basket-week-picker" mode="selector" range="{{basketWeekOptions}}" value="{{basketWeekSelectedIndex}}" aria-label="选择加入菜篮的周" bindtap="onAddToBasket" bindchange="onBasketWeekChange">
+        <view class="action-item">
+          <image class="action-icon" src="/assets/icons/detail-basket-action.svg" mode="aspectFit" />
+          <text>加菜篮</text>
+        </view>
+      </picker>
+      <button class="action-item" bindtap="onAddPlan" aria-label="加计划">
+        <image class="action-icon" src="/assets/icons/detail-plan.svg" mode="aspectFit" />
+        <text>加计划</text>
+      </button>
+    </view>
+  </view>
+
+  <add-recipe-plan-sheet
+    visible="{{addPlanVisible}}"
+    bindclose="onCloseAddPlan"
+    bindafterclose="onAddPlanAfterClose"
+    bindconfirm="onConfirmAddPlan"
+  />
+
+  <action-sheet
+    visible="{{moreActionVisible}}"
+    actions="{{moreActions}}"
+    bindselect="onMoreActionSelect"
+    bindclose="onMoreActionClose"
+    bindafterclose="onMoreActionAfterClose"
+  />
+  <login-sheet visible="{{globalLoginSheetVisible}}" />
+</view>

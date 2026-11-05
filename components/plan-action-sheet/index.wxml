@@ -1,0 +1,16 @@
+<half-screen-modal visible="{{visible}}" height="498rpx" bindclose="onClose" bindafterclose="onAfterClose">
+  <view class="plan-action-sheet" catchtap="noop">
+    <button class="plan-action-option plan-action-option--ai" bindtap="onChooseAI">
+      <text class="plan-action-title">AI 搞定一周菜单</text>
+      <text class="plan-action-description">根据人数自动搭配，营养不重样</text>
+    </button>
+    <view class="plan-action-line"></view>
+    <button class="plan-action-option plan-action-option--manual" bindtap="onChooseManual">
+      <text class="plan-action-title">我自己来安排</text>
+      <text class="plan-action-description">手动录入每日用餐计划</text>
+    </button>
+    <view class="plan-action-band"></view>
+    <button class="plan-action-cancel" bindtap="onClose">取消</button>
+    <view class="plan-action-safe-area"></view>
+  </view>
+</half-screen-modal>

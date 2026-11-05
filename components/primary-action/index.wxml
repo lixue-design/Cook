@@ -1,0 +1,1 @@
+<button class="primary-action {{disabled ? 'primary-action--disabled' : ''}}" hover-class="none" disabled="{{disabled}}" bindtap="onPress">{{text}}</button>

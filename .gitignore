@@ -1,0 +1,36 @@
+# macOS
+.DS_Store
+
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+coverage/
+
+# TypeScript incremental build cache
+*.tsbuildinfo
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+
+# WeChat DevTools local project settings
+project.private.config.json
+
+# Local tool state (environment bindings and agent permissions)
+.cloudbase/
+.claude/
+
+# Locally generated image-library cache; the curated seed images and manifest
+# under storage/dish-images remain versioned.
+storage/dish-images/generated/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*

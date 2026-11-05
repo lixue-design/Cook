@@ -1,0 +1,6 @@
+{
+  "component": true,
+  "usingComponents": {
+    "wheel-picker": "/components/wheel-picker/index"
+  }
+}
