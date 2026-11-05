@@ -53,6 +53,9 @@ Page({
     this.setProfileState('loading', cached);
     getCurrentUser().then((user) => {
       this.setProfileState('loggedIn', user);
+      if (user && user.requiresAgreementConfirm) {
+        this.setData({ loginSheetVisible: true, loginAgreed: false });
+      }
     }).catch((error) => {
       if (error.code === 'UNAUTHENTICATED') {
         authState.clearUser();

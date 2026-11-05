@@ -38,6 +38,7 @@
     "test:auth-client": "node scripts/verify-auth-client.cjs",
     "test:default-profile": "node scripts/verify-default-profile.cjs",
     "test:compliance-client": "node scripts/verify-compliance-client.cjs",
+    "test:privacy-policy": "node scripts/verify-privacy-policy.cjs",
     "test:app-hardening": "node scripts/verify-app-hardening.cjs",
     "test:diagnostics": "node scripts/verify-diagnostics.cjs",
     "test:release-docs": "node scripts/verify-release-readiness.cjs"

@@ -13,7 +13,7 @@ const requiredTables = [
 
 test('every up migration has a matching rollback and unique version', async () => {
   const migrations = await loadMigrations(directory);
-  assert.deepEqual(migrations.map((item) => item.version), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29]);
+  assert.deepEqual(migrations.map((item) => item.version), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]);
   assert.equal(migrations.at(-1)?.version, EXPECTED_DATABASE_VERSION);
 });
 

@@ -1,5 +1,7 @@
 'use strict';
 
+const authConfig = require('../config/auth-api');
+
 const STORAGE_KEY = 'cook.currentUser';
 let cachedUser;
 
@@ -27,7 +29,17 @@ function setUser(user) {
 }
 
 function clearUser() { return setUser(null); }
-function isAuthenticated() { return Boolean(readUser() && readUser().id); }
+function hasCurrentAgreement(user) {
+  return Boolean(
+    user
+    && user.requiresAgreementConfirm !== true
+    && String(user.agreedAgreementVersion || '') === String(authConfig.agreementVersion || '')
+  );
+}
+function isAuthenticated() {
+  const user = readUser();
+  return Boolean(user && user.id && hasCurrentAgreement(user));
+}
 
 const TAB_ROUTES = [
   'pages/recipe-list/index',
@@ -105,6 +117,7 @@ module.exports = {
   setUser,
   clearUser,
   isAuthenticated,
+  hasCurrentAgreement,
   requireAuthenticated,
   dismissLoginSheet,
   takeAuthReturnTarget,

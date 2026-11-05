@@ -43,13 +43,16 @@ function load(relativePath, requireFn, extras = {}) {
   return moduleStub.exports;
 }
 
-const authState = load('services/auth-state.js', require);
+const authState = load('services/auth-state.js', (request) => {
+  if (request === '../config/auth-api') return { agreementVersion: '2026-11-05' };
+  return require(request);
+});
 assert.equal(authState.isAuthenticated(), false);
 assert.equal(authState.requireAuthenticated(), false);
 assert.equal(tabSwitches.length, 0, '未登录拦截不能离开当前页面');
 assert.equal(currentPages[0].data.globalLoginSheetVisible, true, '未登录拦截必须在当前页面打开登录弹窗');
 assert.equal(authState.takeAuthReturnTarget(), null, '当前页登录不需要跳转回跳目标');
-authState.setUser({ id: 'user-a', nickName: '半勺用户' });
+authState.setUser({ id: 'user-a', nickName: '半勺用户', agreedAgreementVersion: '2026-11-05' });
 assert.equal(authState.isAuthenticated(), true);
 assert.equal(storage['cook.currentUser'].id, 'user-a');
 currentPages[0].data.globalLoginSheetVisible = false;
@@ -57,7 +60,7 @@ authState.handleApiError({ code: 'UNAUTHENTICATED' });
 assert.equal(authState.isAuthenticated(), false);
 assert.equal(tabSwitches.length, 0, '读请求鉴权失败不能离开当前页面');
 assert.equal(currentPages[0].data.globalLoginSheetVisible, false, '读请求鉴权失败不应主动弹出登录窗');
-authState.setUser({ id: 'user-a', nickName: '半勺用户' });
+authState.setUser({ id: 'user-a', nickName: '半勺用户', agreedAgreementVersion: '2026-11-05' });
 authState.handleApiError({ code: 'UNAUTHENTICATED' }, { promptLogin: true });
 assert.equal(tabSwitches.length, 0, '写操作鉴权失败也必须停留当前页面');
 assert.equal(currentPages[0].data.globalLoginSheetVisible, true, '写操作鉴权失败必须在当前页面提示登录');

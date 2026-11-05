@@ -120,8 +120,8 @@ MVP 文档中的 REST 路径仍作为产品 API 语义参考；在团队决定�
 | `POST /api/auth/logout` | `auth.logout` | `services/auth-api-remote.js`、`pages/profile/index` | `server/src/auth-api.ts` | `implemented` | 真实微信环境冒烟 |
 | `GET /api/me` | `auth.me` | `services/auth-api-remote.js`、`pages/profile/index` | `server/src/auth-api.ts`、`cook_auth_get_user` | `implemented` | 真实微信环境冒烟 |
 | `POST /api/account/cancel-request` | `account.cancelRequest.create` | `pages/account-cancel/index`、`services/compliance-api-remote.js` | `cook_account_cancel_request_create` | `implemented` | 真实环境冒烟 |
-| `GET /api/agreements/latest` | `agreements.latest` | `pages/agreement/index` 使用同版本静态正文 | `server/src/compliance-api.ts` | `implemented` | 法务确认 |
-| `GET /api/agreements/{type}` | `agreements.get` | `pages/agreement/index` | `server/src/compliance-api.ts` | `implemented` | 法务确认 |
+| `GET /api/agreements/latest` | `agreements.latest` | 登录确认与静态协议页，当前版本 `2026-11-05` | `server/src/compliance-api.ts` | `implemented` | 微信公众平台隐私保护指引人工配置 |
+| `GET /api/agreements/{type}` | `agreements.get` | `pages/agreement/index` | `server/src/compliance-api.ts` | `implemented` | 微信公众平台隐私保护指引人工配置 |
 | `GET /api/app-config` | 不实现 | MVP 配置保留在版本化本地 config | 无 | `not required for MVP` | 发布清单核对 |
 
 auth action 和业务 action 均从 CloudBase 服务端上下文取得可信身份；客户端本地用户态只用于页面准入和展示，不能作为服务端鉴权依据。
