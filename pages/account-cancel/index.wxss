@@ -5,9 +5,11 @@
 .warning-card, .reason-card, .submitted-card { margin: 28rpx 32rpx 0; padding: 36rpx; border-radius: 24rpx; background: #fff; display: flex; flex-direction: column; color: #60646D; font-size: 26rpx; line-height: 44rpx; }
 .warning-card text + text { margin-top: 16rpx; }
 .warning-title, .submitted-title { color: #191919; font-size: 32rpx; font-weight: 600; }
+.withdrawn-tip { margin-bottom: 20rpx; color: #1677FF; }
 .field-label { color: #191919; font-size: 28rpx; font-weight: 500; }
 textarea { width: 100%; height: 220rpx; box-sizing: border-box; margin-top: 20rpx; padding: 24rpx; border-radius: 18rpx; background: #F5F6F8; color: #191919; font-size: 26rpx; line-height: 40rpx; }
 .counter { margin-top: 8rpx; align-self: flex-end; color: #A3A6AE; font-size: 22rpx; }
 .submit-button { height: 88rpx; margin-top: 36rpx; border-radius: 22rpx; background: #D84A4A; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 28rpx; }
 .submit-button[disabled] { opacity: .65; }
 .submitted-card text + text { margin-top: 14rpx; }
+.withdraw-button { height: 80rpx; margin-top: 28rpx; border-radius: 20rpx; border: 1rpx solid #D84A4A; background: #fff; color: #D84A4A; display: flex; align-items: center; justify-content: center; font-size: 28rpx; }

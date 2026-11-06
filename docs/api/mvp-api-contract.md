@@ -974,7 +974,7 @@ wx.cloud.callFunction({
 - CloudBase 管理微信会话，本服务不另行签发 token；AppSecret 不进入小程序端。
 - 首次登录必须记录已同意协议版本。
 - 不获取手机号。
-- 如果账号状态为 `cancel_requested`、`cancelled` 或 `blocked`，返回明确错误。
+- 注销可撤回期内账号仍可正常使用；期满自动删除后，普通业务请求不会自动重建旧账号。用户需要再次明确微信登录并同意最新协议，才会获得新的空账号。
 
 错误态：`INVALID_ARGUMENT`、`FORBIDDEN`、`CONFLICT`、`INTERNAL_ERROR`。
 
@@ -1030,7 +1030,7 @@ wx.cloud.callFunction({
 
 ## 8. 协议、隐私和注销申请
 
-版本化协议读取和注销申请 action 已实现；小程序协议页使用同一版本的静态正文。
+版本化协议读取和自助注销 action 已实现；小程序协议页使用同一版本的静态正文。注销确认后有 7 天可撤回期，到期由服务端内部定时任务自动删除数据。
 
 ### 8.1 获取最新协议版本
 
@@ -1105,18 +1105,20 @@ wx.cloud.callFunction({
 ```json
 {
   "id": "cancel-request-id",
-  "status": "submitted",
-  "submittedAt": "2026-07-31T12:00:00.000Z"
+  "status": "cooling_off",
+  "submittedAt": "2026-11-06T12:00:00.000Z",
+  "scheduledDeleteAt": "2026-11-13T12:00:00.000Z"
 }
 ```
 
 业务规则：
 
-- MVP 只要求入口、说明和申请记录，不自动完成全量数据清理。
-- 同一用户已有 `submitted` 或 `processing` 申请时返回现有申请或 `CONFLICT`。
-- MVP 提交时只写入可追踪申请，不立即锁定账号或删除数据；人工开始处理后可另行更新账号状态。
+- 用户提交后进入 7 天 `cooling_off` 可撤回期；同一用户已有 `cooling_off`、`processing` 或 `retrying` 申请时返回现有申请。
+- 用户可通过 `account.cancelRequest.cancel` 在可撤回期内自行撤回；进入 `processing` 或 `retrying` 后不可撤回。
+- 到期删除只能由带内部令牌的 `system.accountCancellation.runDue` 定时任务触发；客户端不能传入用户 ID 或调用最终删除。
+- 删除范围包括账号、菜谱、分类、计划、菜篮、生成草稿和上传封面；失败会自动重试，完成记录不包含用户身份或内容数据。
 
-错误态：`UNAUTHENTICATED`、`INVALID_ARGUMENT`、`CONFLICT`、`INTERNAL_ERROR`。
+错误态：`UNAUTHENTICATED`、`INVALID_ARGUMENT`、`NOT_FOUND`、`CONFLICT`、`INTERNAL_ERROR`。
 
 ### 8.4 获取小程序配置
 

@@ -3,7 +3,7 @@
   <view class="agreement-nav"><button bindtap="goBack">‹</button><text>{{title}}</text><view></view></view>
   <scroll-view class="agreement-scroll" scroll-y>
     <view wx:if="{{type === 'terms'}}" class="agreement-body">
-      <text class="updated">更新日期：2026年11月5日</text>
+      <text class="updated">更新日期：2026年11月6日</text>
       <text class="heading">一、服务说明</text>
       <text>半勺为用户提供菜谱记录、用餐计划和采购清单管理服务。请妥善使用账户，并对自行录入的内容负责。</text>
       <text class="heading">二、用户内容</text>
@@ -14,8 +14,8 @@
       <text>如对本协议有疑问，可通过小程序“我的”页面提供的反馈方式联系我们。</text>
     </view>
     <view wx:else class="agreement-body">
-      <text class="updated">更新日期：2026年11月5日</text>
-      <text class="updated">生效日期：2026年11月5日</text>
+      <text class="updated">更新日期：2026年11月6日</text>
+      <text class="updated">生效日期：2026年11月6日</text>
       <text class="heading">一、适用范围与联系我们</text>
       <text>“半勺”由李雪（以下简称“我们”）运营。本政策说明我们如何处理你使用半勺小程序时提供或产生的个人信息。如有隐私相关问题、查阅、更正、删除或注销请求，请发送邮件至 recipe001@163.com。我们会在核验你的身份后处理。</text>
       <text class="heading">二、我们处理的信息及用途</text>
@@ -34,7 +34,7 @@
       <text class="heading">五、保存期限</text>
       <text>我们会在实现本政策所述目的所必需的期限内保存你的信息：账户与菜谱、计划、菜篮数据在你使用服务期间保存；菜谱封面随对应菜谱保存；OCR 临时图片在识别结束后尝试删除。法律法规另有规定或你另行同意的除外。</text>
       <text class="heading">六、你的权利</text>
-      <text>你可以在小程序内查看、修改或删除菜谱、计划和菜篮内容；可退出登录；可在“我的—账号注销”提交注销申请。当前版本的注销申请会生成待处理记录，并不会立即自动删除全部数据。你也可以通过本政策公布的邮箱提出查阅、更正、删除、撤回同意或注销请求，我们将在核验身份后依照适用法律法规处理。</text>
+      <text>你可以在小程序内查看、修改或删除菜谱、计划和菜篮内容；可退出登录；可在“我的—账号注销”自主发起注销。确认后进入 7 天可撤回期，期间可在小程序自行撤回；期满后系统自动删除账号、菜谱、计划、菜篮和已上传菜谱封面。删除任务发生临时故障时会自动重试，未完成前不会显示注销完成。为记录删除已完成，系统仅保留不含菜谱、计划、菜篮、图片、OpenID 或注销原因的最小完成记录。你也可以通过本政策公布的邮箱提出查阅、更正、删除或撤回同意请求。</text>
       <text class="heading">七、未成年人保护</text>
       <text>本服务主要面向成年人。如你是未成年人，请在监护人同意和指导下使用本服务；监护人可通过本政策公布的邮箱联系我们处理相关请求。</text>
       <text class="heading">八、政策更新</text>

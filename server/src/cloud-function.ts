@@ -19,6 +19,7 @@ import {
 } from './basket-api';
 import { handleAuthApiEvent, type AuthApiResponse } from './auth-api';
 import { handleComplianceApiEvent, type ComplianceApiResponse } from './compliance-api';
+import { runDueAccountCancellations } from './account-cancellation';
 import {
   handleRecipeGenerationApiEvent,
   type RecipeGenerationApiEvent,
@@ -29,6 +30,7 @@ import { observeAction } from './observability';
 type CloudFunctionEvent = {
   action?: string;
   payload?: unknown;
+  internalToken?: string;
   path?: string;
   rawPath?: string;
   httpMethod?: string;
@@ -111,7 +113,15 @@ export const main = async (
   if (event.action) {
     const action = event.action;
     return observeAction(action, async () => {
-      const { cloudbaseRecipeDependencies } = await import('./cloudbase-runtime.js');
+      const { cloudbaseRecipeDependencies, cloudbaseAccountCancellationDependencies } = await import('./cloudbase-runtime.js');
+      if (action === 'system.accountCancellation.runDue') {
+        const token = String(process.env.ACCOUNT_CANCELLATION_TIMER_TOKEN || '').trim();
+        if (!token || event.internalToken !== token) {
+          return { ok: false, error: { code: 'FORBIDDEN', message: '系统任务未获授权' } };
+        }
+        const result = await runDueAccountCancellations(cloudbaseAccountCancellationDependencies);
+        return { ok: true, data: result };
+      }
       if (action === 'health.ready') {
         return checkCloudBaseRecipeReadiness(cloudbaseRecipeDependencies);
       }

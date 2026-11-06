@@ -20,7 +20,7 @@ const wx = {
       return Promise.resolve({
         result: {
           ok: true,
-          data: { id: 'request-1', status: 'submitted', submittedAt: '2026-07-31T12:00:00Z' }
+          data: { id: 'request-1', status: 'cooling_off', submittedAt: '2026-07-31T12:00:00Z', scheduledDeleteAt: '2026-08-07T12:00:00Z' }
         }
       });
     }
@@ -45,7 +45,7 @@ vm.runInNewContext(fs.readFileSync(filename, 'utf8'), {
 
 async function main() {
   const request = await moduleStub.exports.createCancelRequest(' 不再使用 ');
-  assert.equal(request.status, 'submitted');
+  assert.equal(request.status, 'cooling_off');
   assert.equal(calls[0].name, 'cook-api');
   assert.equal(calls[0].data.action, 'account.cancelRequest.create');
   assert.equal(calls[0].data.payload.reason, '不再使用');

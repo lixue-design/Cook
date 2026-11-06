@@ -17,17 +17,22 @@ const asObject = (value: unknown): Record<string, unknown> => (
     ? value as Record<string, unknown>
     : {}
 );
-const ensureIdentity = async (dependencies: AuthApiDependencies): Promise<VerifiedIdentity> => {
+const ensureIdentity = async (
+  dependencies: AuthApiDependencies,
+  createIfMissing: boolean
+): Promise<VerifiedIdentity> => {
   const identity = await dependencies.getIdentity();
   if (!identity.userId || !identity.appId || !identity.openId) {
     throw new ApiError('UNAUTHENTICATED', '请先完成微信登录');
   }
-  const userId = await dependencies.rpc.call<string>('ai_dish_library_ensure_user', {
+  const userId = await dependencies.rpc.call<string | null>('ai_dish_library_ensure_user', {
     p_user_id: identity.userId,
     p_wx_appid: identity.appId,
     p_wx_openid: identity.openId,
-    p_wx_unionid: identity.unionId || null
+    p_wx_unionid: identity.unionId || null,
+    p_create: createIfMissing
   });
+  if (!userId) throw new ApiError('UNAUTHENTICATED', '请先完成微信登录');
   return { ...identity, userId };
 };
 
@@ -36,19 +41,12 @@ export const handleAuthApiEvent = async (
   dependencies: AuthApiDependencies
 ): Promise<AuthApiResponse> => {
   try {
-    const identity = await ensureIdentity(dependencies);
-    if (event.action === 'auth.me') {
-      const user = await dependencies.rpc.call<Record<string, unknown> | null>('cook_auth_get_user', {
-        p_user_id: identity.userId
-      });
-      if (!user) throw new ApiError('UNAUTHENTICATED', '用户登录态无效');
-      if (user.status !== 'active') throw new ApiError('FORBIDDEN', '当前账号不可用');
-      return { ok: true, data: user };
-    }
+    if (event.action === 'auth.logout') return { ok: true, data: { loggedOut: true } };
     if (event.action === 'auth.wechatLogin') {
       const payload = asObject(event.payload);
       const agreementVersion = String(payload.agreedAgreementVersion || '').trim();
       if (!agreementVersion) throw new ApiError('INVALID_ARGUMENT', '请先阅读并同意用户协议和隐私政策');
+      const identity = await ensureIdentity(dependencies, true);
       const initializedProfile = await dependencies.rpc.call<Record<string, unknown>>('cook_auth_assign_default_profile', {
         p_user_id: identity.userId
       });
@@ -60,7 +58,15 @@ export const handleAuthApiEvent = async (
       });
       return { ok: true, data: { user } };
     }
-    if (event.action === 'auth.logout') return { ok: true, data: { loggedOut: true } };
+    const identity = await ensureIdentity(dependencies, false);
+    if (event.action === 'auth.me') {
+      const user = await dependencies.rpc.call<Record<string, unknown> | null>('cook_auth_get_user', {
+        p_user_id: identity.userId
+      });
+      if (!user) throw new ApiError('UNAUTHENTICATED', '用户登录态无效');
+      if (user.status !== 'active') throw new ApiError('FORBIDDEN', '当前账号不可用');
+      return { ok: true, data: user };
+    }
     throw new ApiError('NOT_FOUND', '未知的登录服务操作');
   } catch (error) {
     if (error instanceof ApiError) return { ok: false, error: { code: error.code, message: error.message } };

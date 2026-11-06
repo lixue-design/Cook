@@ -40,14 +40,17 @@ test('login trusts server identity and records agreement with public profile', a
   }, dependenciesWith(rpc));
   assert.equal(result.ok, true);
   assert.equal(calls[0].args.p_user_id, identity.userId);
+  assert.equal(calls[0].args.p_create, true);
   assert.equal(calls[1].name, 'cook_auth_assign_default_profile');
   assert.equal(calls[2].args.p_agreement_version, '2026-07-31');
   assert.equal(calls[2].args.p_nickname, '食光旅人 A7K2');
 });
 
 test('login requires agreement and me rejects inactive users', async () => {
+  const calls: Array<{ name: string; args: Record<string, unknown> }> = [];
   const rpc: RpcExecutor = {
-    async call<T>(name: string) {
+    async call<T>(name: string, args: Record<string, unknown>) {
+      calls.push({ name, args });
       if (name === 'ai_dish_library_ensure_user') return identity.userId as T;
       if (name === 'cook_auth_get_user') return { id: identity.userId, status: 'blocked' } as T;
       throw new Error(`unexpected ${name}`);
@@ -59,9 +62,12 @@ test('login requires agreement and me rejects inactive users', async () => {
   }, dependenciesWith(rpc));
   assert.equal(missingAgreement.ok, false);
   if (!missingAgreement.ok) assert.equal(missingAgreement.error.code, 'INVALID_ARGUMENT');
+  assert.equal(calls.length, 0);
   const me = await handleAuthApiEvent({ action: 'auth.me' }, dependenciesWith(rpc));
   assert.equal(me.ok, false);
   if (!me.ok) assert.equal(me.error.code, 'FORBIDDEN');
+  const meIdentityCall = calls.filter((call) => call.name === 'ai_dish_library_ensure_user').at(-1);
+  assert.equal(meIdentityCall?.args.p_create, false);
 });
 
 test('me returns agreement confirmation status and stale login versions are rejected', async () => {

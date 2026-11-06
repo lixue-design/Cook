@@ -59,12 +59,14 @@ const ensureIdentity = async (dependencies: RecipeApiDependencies): Promise<Veri
   if (!identity.userId || !identity.appId || !identity.openId) {
     throw new ApiError('UNAUTHENTICATED', '未获取到可信的微信用户身份');
   }
-  const userId = await dependencies.rpc.call<string>('ai_dish_library_ensure_user', {
+  const userId = await dependencies.rpc.call<string | null>('ai_dish_library_ensure_user', {
     p_user_id: identity.userId,
     p_wx_appid: identity.appId,
     p_wx_openid: identity.openId,
-    p_wx_unionid: identity.unionId || null
+    p_wx_unionid: identity.unionId || null,
+    p_create: false
   });
+  if (!userId) throw new ApiError('UNAUTHENTICATED', '请先完成微信登录');
   return { ...identity, userId };
 };
 

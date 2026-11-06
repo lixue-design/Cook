@@ -3,6 +3,7 @@ import cloudbase from '@cloudbase/js-sdk';
 import { generatePGClient } from '@cloudbase/wx-cloud-client-sdk';
 import { createHash } from 'node:crypto';
 import type { CoverStorage, RecipeApiDependencies, RpcExecutor, VerifiedIdentity } from './recipe-api';
+import type { AccountCancellationDependencies } from './account-cancellation';
 
 type PostgrestResult<T> = { data: T | null; error: { message?: string; code?: string } | null };
 type PostgrestClient = {
@@ -82,4 +83,11 @@ const covers: CoverStorage = {
   }
 };
 
+const removeCovers = async (paths: string[]): Promise<void> => {
+  if (!paths.length) return;
+  const result = await platformApp.storage.from('recipe-covers').remove(paths);
+  if (result.error) throw result.error;
+};
+
 export const cloudbaseRecipeDependencies: RecipeApiDependencies = { getIdentity, rpc, covers };
+export const cloudbaseAccountCancellationDependencies: AccountCancellationDependencies = { rpc, removeCovers };

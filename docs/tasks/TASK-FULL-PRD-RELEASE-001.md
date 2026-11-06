@@ -6,11 +6,11 @@
 
 ## 背景
 
-Full PRD 队列最后需要更新发布手册、回滚策略和成本/安全门禁。当前本地代码切片已推进到 schema version 20，但真实发布仍依赖 CloudBase、微信开发者工具、真机冒烟、法务文案和注销处理批准。
+Full PRD 队列最后需要更新发布手册、回滚策略和成本/安全门禁。当前本地代码切片已推进到 schema version 32，但真实发布仍依赖 CloudBase、微信开发者工具、真机冒烟、隐私指引和注销定时任务演练。
 
 ## 目标
 
-更新 Full PRD 提审前发布清单，明确 schema 20、规则 provider、真实环境冒烟、注销处理和安全/成本门禁。
+更新 Full PRD 提审前发布清单，明确 schema 32、规则 provider、真实环境冒烟、自助注销处理和安全/成本门禁。
 
 ## 当前发布结论
 
@@ -18,7 +18,7 @@ Full PRD 队列最后需要更新发布手册、回滚策略和成本/安全门�
 
 ## 阻塞原因
 
-- `TASK-ACCOUNT-CANCEL-EXECUTE-001` 仍为 `Blocked`，注销 dry-run/execute 未获合规门禁。
+- `TASK-ACCOUNT-CANCEL-EXECUTE-001` 待体验环境定时器、迁移和专用测试账号演练。
 - `TASK-FULL-PRD-SMOKE-001` 仍为 `Blocked`，没有真实 staging/CloudBase/真机冒烟证据。
 - 真实 remote 配置、数据库迁移演练、存储桶、微信登录和法务文案仍需外部负责人确认。
 
@@ -26,8 +26,8 @@ Full PRD 队列最后需要更新发布手册、回滚策略和成本/安全门�
 
 ### 包含
 
-- 更新 `docs/checklists/TASK-RELEASE-001-release-runbook.md` 到 Full PRD / schema 20。
-- 更新发布文档验证脚本的 migration 范围到 0001-0020。
+- 更新 `docs/checklists/TASK-RELEASE-001-release-runbook.md` 到 Full PRD / schema 32。
+- 更新发布文档验证脚本的 migration 范围到 0001-0032。
 - 明确首版生成只启用 `provider=rules`，未来 AI provider 需要成本/密钥/熔断门禁。
 - 明确真实环境、注销执行和法务/安全门禁。
 
@@ -49,7 +49,7 @@ Full PRD 队列最后需要更新发布手册、回滚策略和成本/安全门�
 
 - 发布手册必须保留 `Blocked / 不允许提审或生产发布` 结论，直到真实门禁关闭。
 - 发布手册必须禁止 mock 作为生产降级方案。
-- 发布手册必须检查迁移版本 20。
+- 发布手册必须检查迁移版本 32。
 - 发布手册必须覆盖 Full PRD 规则生成、月计划、注销和协议版本。
 
 ## Full PRD 限制
@@ -76,13 +76,13 @@ Full PRD 队列最后需要更新发布手册、回滚策略和成本/安全门�
 
 ## API/数据变更
 
-不涉及业务 API；文档验证脚本检查 migration 0001-0020。
+不涉及业务 API；文档验证脚本检查 migration 0001-0032。
 
 ## 验收标准
 
-- [x] 发布手册更新到 Full PRD / schema 20。
+- [x] 发布手册更新到 Full PRD / schema 32。
 - [x] 发布手册覆盖规则 provider、成本/密钥、真实环境和注销执行门禁。
-- [x] 发布文档验证脚本覆盖 0001-0020 migration。
+- [x] 发布文档验证脚本覆盖 0001-0032 migration。
 - [x] 明确真实发布仍 Blocked，不能提审或生产发布。
 
 ## 测试要求

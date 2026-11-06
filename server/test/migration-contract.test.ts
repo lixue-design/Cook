@@ -13,7 +13,7 @@ const requiredTables = [
 
 test('every up migration has a matching rollback and unique version', async () => {
   const migrations = await loadMigrations(directory);
-  assert.deepEqual(migrations.map((item) => item.version), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]);
+  assert.deepEqual(migrations.map((item) => item.version), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]);
   assert.equal(migrations.at(-1)?.version, EXPECTED_DATABASE_VERSION);
 });
 
@@ -192,6 +192,30 @@ test('account cancel state migration adds state machine and audit trail', async 
   assert.match(down, /DROP TABLE IF EXISTS account_cancel_audit_logs/);
   assert.match(down, /status = 'cancelled'/);
   assert.match(down, /DROP FUNCTION IF EXISTS cook_account_cancel_request_cancel/);
+});
+
+test('self-service cancellation waits seven days, is timer-only and preserves no personal tombstone data', async () => {
+  const up = await fs.readFile(path.join(directory, '0031_self_service_account_cancellation.up.sql'), 'utf8');
+  const down = await fs.readFile(path.join(directory, '0031_self_service_account_cancellation.down.sql'), 'utf8');
+  for (const token of [
+    "interval '7 days'", 'cooling_off', 'cook_account_cancel_claim_due',
+    'FOR UPDATE SKIP LOCKED', 'cook_account_cancel_finalize_deletion',
+    'cook_account_cancel_mark_retry', 'account_cancel_tombstones',
+    'DELETE FROM app_users WHERE id = target.owner_id',
+    "p_create boolean", "REVOKE ALL ON FUNCTION cook_account_cancel_claim_due"
+  ]) assert.match(up, new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  assert.match(up, /coverStorageKeys/);
+  assert.match(down, /DROP FUNCTION IF EXISTS cook_account_cancel_finalize_deletion/);
+  assert.match(down, /DROP TABLE IF EXISTS account_cancel_tombstones/);
+});
+
+test('self-service cancellation policy migration makes the new policy version mandatory', async () => {
+  const up = await fs.readFile(path.join(directory, '0032_privacy_policy_self_service_cancellation.up.sql'), 'utf8');
+  const down = await fs.readFile(path.join(directory, '0032_privacy_policy_self_service_cancellation.down.sql'), 'utf8');
+  assert.match(up, /'2026-11-06'/);
+  assert.match(up, /7 天可撤回期/);
+  assert.match(up, /自动删除账号、菜谱、计划、菜篮和已上传菜谱封面/);
+  assert.match(down, /'2026-11-05'/);
 });
 
 test('auth migration stores public profile and agreement consent behind owner-scoped RPCs', async () => {

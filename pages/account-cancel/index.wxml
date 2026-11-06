@@ -4,21 +4,28 @@
   <scroll-view class="cancel-scroll" scroll-y>
     <view class="warning-card">
       <text class="warning-title">提交前请确认</text>
-      <text>注销处理完成后，你的菜谱、计划和菜篮可能无法恢复。</text>
-      <text>当前 MVP 仅记录申请，由工作人员核验处理，不会在点击提交后立即自动清除数据。</text>
-      <text>若已有待处理申请，重复提交会返回原申请记录。</text>
+      <text>提交后有 7 天可撤回期。你可在到期前自行撤回，无需联系客服。</text>
+      <text>到期后，系统会自动删除账号、菜谱、计划、菜篮和已上传的菜谱封面，删除后无法恢复。</text>
+      <text>删除任务失败时，系统会自动重试；未删除成功前不会显示注销完成。</text>
     </view>
-    <view wx:if="{{request}}" class="submitted-card">
-      <text class="submitted-title">申请已记录</text>
-      <text>状态：{{request.status === 'processing' ? '处理中' : '已提交'}}</text>
+    <view wx:if="{{loading}}" class="submitted-card"><text>正在读取注销状态…</text></view>
+    <view wx:elif="{{request}}" class="submitted-card">
+      <text class="submitted-title">账号注销中</text>
+      <text wx:if="{{request.status === 'cooling_off'}}">状态：可撤回期内</text>
+      <text wx:elif="{{request.status === 'processing'}}">状态：正在自动删除数据</text>
+      <text wx:elif="{{request.status === 'retrying'}}">状态：删除任务将自动重试</text>
+      <text wx:else>状态：{{request.status}}</text>
+      <text wx:if="{{request.scheduledDeleteAtText}}">预计删除时间：{{request.scheduledDeleteAtText}}</text>
       <text>申请编号：{{request.id}}</text>
-      <text>提交时间：{{request.submittedAt}}</text>
+      <text>提交时间：{{request.submittedAtText}}</text>
+      <button wx:if="{{request.status === 'cooling_off'}}" class="withdraw-button" loading="{{submitting}}" disabled="{{submitting}}" bindtap="withdrawRequest">撤回注销</button>
     </view>
     <view wx:else class="reason-card">
+      <text wx:if="{{withdrawn}}" class="withdrawn-tip">你已撤回此前的注销申请，账号与数据会继续保留。</text>
       <text class="field-label">注销原因（选填）</text>
       <textarea maxlength="500" value="{{reason}}" placeholder="可告诉我们你不再使用的原因" bindinput="onReasonInput"></textarea>
       <text class="counter">{{reason.length}} / 500</text>
-      <button class="submit-button" loading="{{submitting}}" disabled="{{submitting}}" bindtap="submitRequest">提交注销申请</button>
+      <button class="submit-button" loading="{{submitting}}" disabled="{{submitting}}" bindtap="submitRequest">申请注销账号</button>
     </view>
   </scroll-view>
   <login-sheet visible="{{globalLoginSheetVisible}}" />

@@ -31,12 +31,15 @@ const ownerFor = async (dependencies: ComplianceApiDependencies): Promise<string
   if (!identity.userId || !identity.appId || !identity.openId) {
     throw new ApiError('UNAUTHENTICATED', '请先登录');
   }
-  return dependencies.rpc.call<string>('ai_dish_library_ensure_user', {
+  const ownerId = await dependencies.rpc.call<string | null>('ai_dish_library_ensure_user', {
     p_user_id: identity.userId,
     p_wx_appid: identity.appId,
     p_wx_openid: identity.openId,
-    p_wx_unionid: identity.unionId || null
+    p_wx_unionid: identity.unionId || null,
+    p_create: false
   });
+  if (!ownerId) throw new ApiError('UNAUTHENTICATED', '请先完成微信登录');
+  return ownerId;
 };
 
 export const handleComplianceApiEvent = async (

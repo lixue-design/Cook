@@ -79,8 +79,8 @@
 
 | 顺序 | 状态 | 任务 ID | 标题 | 目标 |
 | --- | --- | --- | --- | --- |
-| 5.1 | Done | `TASK-ACCOUNT-CANCEL-STATE-001` | 注销申请状态机 | submitted/reviewing/processing/completed 等状态和审计。 |
-| 5.2 | Blocked | `TASK-ACCOUNT-CANCEL-EXECUTE-001` | 注销数据处理任务 | dry-run、删除/匿名化、幂等执行和失败重试。 |
+| 5.1 | Done | `TASK-ACCOUNT-CANCEL-STATE-001` | 注销申请状态机 | 申请、撤回与审计基础。 |
+| 5.2 | Ready for environment validation | `TASK-ACCOUNT-CANCEL-EXECUTE-001` | 自助注销数据处理 | 7 天可撤回、定时自动删除、幂等与失败重试；待体验环境演练。 |
 | 5.3 | Done | `TASK-AGREEMENT-VERSION-001` | 协议版本强制确认 | 协议版本更新后下次登录或核心功能前重新确认。 |
 
 ## 阶段 6：全量 PRD 验收

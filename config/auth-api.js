@@ -13,5 +13,5 @@ module.exports = {
       || env.PLAN_CLOUD_FUNCTION_NAME
       || configuredCloudFunctionName
   ).trim(),
-  agreementVersion: String(env.AGREEMENT_VERSION || '2026-11-05').trim()
+  agreementVersion: String(env.AGREEMENT_VERSION || '2026-11-06').trim()
 };
