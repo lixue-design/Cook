@@ -17,6 +17,7 @@ function loadRemoteApi(wx) {
       if (id === '../config/recipe-api') {
         return { cloudFunctionName: 'cookRecipeApi' };
       }
+      if (id === '../config/cloudbase-env') return { businessEnvId: 'test-env' };
       if (id === './auth-state') return { handleApiError() {} };
       if (id === './diagnostics') return { recordFailure() {}, recordSuccess() {} };
       if (id === '../utils/recipe-image') {
@@ -43,8 +44,16 @@ function ok(data) {
 
 async function main() {
   const actions = [];
+  const coverPath = 'user-hash/cover.jpg';
+  const coverFileId = 'cloud://test-env/user-hash/cover.jpg';
   const wx = {
     cloud: {
+      uploadFile({ cloudPath, filePath, config }) {
+        assert.equal(cloudPath, coverPath);
+        assert.match(filePath, /^wxfile:/);
+        assert.equal(config.env, 'test-env');
+        return Promise.resolve({ fileID: coverFileId });
+      },
       callFunction({ name, data }) {
         actions.push({ name, data });
         assert.equal(name, 'cookRecipeApi');
@@ -78,7 +87,14 @@ async function main() {
             steps: [{ id: 'step-1', text: '下锅翻炒', imageUrl: '' }]
           });
         }
-        if (data.action === 'covers.upload') {
+        if (data.action === 'covers.upload.prepare') {
+          assert.equal(data.payload.contentType, 'image/jpeg');
+          return ok({ cloudPath: coverPath });
+        }
+        if (data.action === 'covers.upload.complete') {
+          assert.equal(data.payload.cloudPath, coverPath);
+          assert.equal(data.payload.fileId, coverFileId);
+          assert.equal(data.payload.contentType, 'image/jpeg');
           return ok({ storageKey: 'user-hash/cover.jpg', coverUrl: 'https://cdn.example/uploaded.jpg' });
         }
         if (data.action === 'recipes.create' || data.action === 'recipes.update') {
@@ -107,14 +123,6 @@ async function main() {
         }
         throw new Error(`Unexpected action ${data.action}`);
       }
-    },
-    getFileSystemManager() {
-      return {
-        readFile({ encoding, success }) {
-          assert.equal(encoding, 'base64');
-          success({ data: Buffer.from('tiny-image').toString('base64') });
-        }
-      };
     }
   };
 
@@ -188,8 +196,7 @@ async function main() {
           result: { ok: false, error: { code: 'DATABASE_UNAVAILABLE', message: '数据库就绪检查失败' } }
         });
       }
-    },
-    getFileSystemManager: wx.getFileSystemManager
+    }
   });
 
   await assert.rejects(
@@ -199,16 +206,17 @@ async function main() {
 
   const uploadFailingApi = loadRemoteApi({
     cloud: {
+      uploadFile: wx.cloud.uploadFile,
       callFunction({ data }) {
-        if (data.action === 'covers.upload') {
+        if (data.action === 'covers.upload.prepare') return ok({ cloudPath: coverPath });
+        if (data.action === 'covers.upload.complete') {
           return Promise.resolve({
             result: { ok: false, error: { code: 'UPLOAD_TOO_LARGE', message: '图片不能超过5MB' } }
           });
         }
         return ok({});
       }
-    },
-    getFileSystemManager: wx.getFileSystemManager
+    }
   });
 
   await assert.rejects(

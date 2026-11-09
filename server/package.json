@@ -19,7 +19,8 @@
     "verify": "node dist/src/cli.js verify",
     "test": "node --test dist/test/*.test.js",
     "test:unit": "node --test dist/test/account-cancellation.test.js dist/test/ark-dish-image-generator.test.js dist/test/auth-api.test.js dist/test/basket-api.test.js dist/test/basket-merge.test.js dist/test/compliance-api.test.js dist/test/config.test.js dist/test/dish-image-library.test.js dist/test/health.test.js dist/test/migration-contract.test.js dist/test/observability.test.js dist/test/plan-api.test.js dist/test/recipe-api.test.js dist/test/recipe-generation-api.test.js dist/test/recipe-generation-engine.test.js dist/test/recipe-system-tags.test.js dist/test/test-database-config.test.js dist/test/week-plan-generator.test.js",
-    "test:integration": "node --test dist/test/database-integration.test.js"
+    "test:integration": "node --test dist/test/database-integration.test.js",
+    "test:migration-rehearsal": "node --test dist/test/database-integration.test.js"
   },
   "dependencies": {
     "@cloudbase/js-sdk": "^3.6.3",

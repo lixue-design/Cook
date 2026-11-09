@@ -21,7 +21,7 @@ for (const file of configs) {
 }
 
 const migrationDir = path.join(root, 'database/migrations');
-for (let version = 1; version <= 32; version += 1) {
+for (let version = 1; version <= 33; version += 1) {
   const prefix = String(version).padStart(4, '0');
   const files = fs.readdirSync(migrationDir).filter((name) => name.startsWith(`${prefix}_`));
   assert.equal(files.filter((name) => name.endsWith('.up.sql')).length, 1, `${prefix} up migration`);
@@ -37,8 +37,10 @@ for (const required of [
   'docs/checklists/mvp-acceptance.md',
   'docs/reviews/pr-review-checklist.md',
   'TASK-QA-MVP-001',
-  'schema 版本严格为 `32`',
-  '`0001`–`0032`',
+  'schema 版本严格为 `33`',
+  '`0001`–`0033`',
+  'test:migration-rehearsal',
+  'TEST_DATABASE_URL',
   'system.accountCancellation.runDue',
   'ACCOUNT_CANCELLATION_TIMER_TOKEN'
 ]) {

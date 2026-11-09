@@ -116,6 +116,11 @@ Page({
     }
     const recipeDataVersion = Number(app.globalData.recipeDataVersion || 0);
     if (recipeDataVersion !== this.recipeDataVersion) this.refreshRecipeCatalog(recipeDataVersion);
+    if (app.globalData.planNeedsRefresh) {
+      app.globalData.planNeedsRefresh = false;
+      if (this.data.planMode === 'week') this.loadWeeklyPlan().catch(() => {});
+      else if (this.data.selectedDate) this.onDateChange(this.data.selectedDate);
+    }
     const pending = app.globalData.pendingPlanSelection;
     if (!pending) return;
     if (!requireAuthenticated()) return;

@@ -1,6 +1,7 @@
 'use strict';
 
 const apiConfig = require('../config/recipe-api');
+const cloudbaseEnv = require('../config/cloudbase-env');
 const { handleApiError } = require('./auth-state');
 const diagnostics = require('./diagnostics');
 const { isLocalRecipeImagePath, isTemporaryRecipeImagePath } = require('../utils/recipe-image');
@@ -36,17 +37,6 @@ function call(action, payload) {
   });
 }
 
-function readLocalFileBase64(filePath) {
-  return new Promise((resolve, reject) => {
-    wx.getFileSystemManager().readFile({
-      filePath,
-      encoding: 'base64',
-      success: (result) => resolve(result.data),
-      fail: reject
-    });
-  });
-}
-
 function detectContentType(filePath) {
   const value = String(filePath || '').toLowerCase();
   if (value.endsWith('.png')) return 'image/png';
@@ -58,8 +48,18 @@ async function uploadCustomCover(filePath) {
   if (!filePath || !isLocalRecipeImagePath(filePath)) {
     return { storageKey: '', coverUrl: filePath || '' };
   }
-  const base64 = await readLocalFileBase64(filePath);
-  return call('covers.upload', { base64, contentType: detectContentType(filePath) });
+  const contentType = detectContentType(filePath);
+  const prepared = await call('covers.upload.prepare', { contentType });
+  const cloudPath = String(prepared && prepared.cloudPath || '');
+  if (!cloudPath) throw new Error('封面上传准备失败，请重试');
+  const uploaded = await wx.cloud.uploadFile({
+    cloudPath,
+    filePath,
+    config: { env: cloudbaseEnv.businessEnvId }
+  });
+  const fileId = String(uploaded && uploaded.fileID || '');
+  if (!fileId) throw new Error('封面上传失败，请重试');
+  return call('covers.upload.complete', { cloudPath, fileId, contentType });
 }
 
 function normalizeStep(step, index) {

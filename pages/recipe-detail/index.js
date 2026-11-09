@@ -144,6 +144,7 @@ Page({
   },
   onConfirmAddPlan(event) {
     if (!requireAuthenticated()) return;
+    if (this.planAdding) return;
     const recipe = this.data.recipe;
     if (!recipe) return;
     const { date, dateText, meal, mealName } = event.detail;
@@ -155,10 +156,15 @@ Page({
       coverUrl: recipe.heroImage || '',
       crop: { width: 64, height: 64, left: 0, top: 0 }
     };
-    addRecipeToPlan(date, meal, planRecipe);
-    app.globalData.pendingPlanSelection = { date, meal, mealName, type: 'recipes', recipes: [planRecipe] };
-    this.pendingAddPlanToast = `已添加至${dateText}${mealName}计划`;
-    this.setData({ addPlanVisible: false });
+    this.planAdding = true;
+    addRecipeToPlan(date, meal, planRecipe).then(() => {
+      // 菜谱页已经完成服务端写入；计划页仅在返回时刷新，不能再写一次。
+      app.globalData.planNeedsRefresh = true;
+      this.pendingAddPlanToast = `已添加至${dateText}${mealName}计划`;
+      this.setData({ addPlanVisible: false });
+    }).catch((error) => {
+      wx.showToast({ title: error.message || '添加计划失败，请稍后重试', icon: 'none' });
+    }).then(() => { this.planAdding = false; });
   },
   onAddPlanAfterClose() {
     const title = this.pendingAddPlanToast;

@@ -31,10 +31,40 @@ type CloudFunctionEvent = {
   action?: string;
   payload?: unknown;
   internalToken?: string;
+  Type?: string;
+  TriggerName?: string;
+  Message?: string;
   path?: string;
   rawPath?: string;
   httpMethod?: string;
   requestContext?: { http?: { method?: string } };
+};
+
+const ACCOUNT_CANCELLATION_TIMER_ACTION = 'system.accountCancellation.runDue';
+const ACCOUNT_CANCELLATION_TIMER_TRIGGER = 'account-cancellation-daily';
+
+type InternalTimerAction = {
+  action: typeof ACCOUNT_CANCELLATION_TIMER_ACTION;
+  internalToken: string;
+};
+
+/**
+ * CloudBase timer triggers deliver custom arguments through Message rather
+ * than the normal callFunction payload. Only the named timer is eligible;
+ * the same secret is still checked before an irreversible deletion runs.
+ */
+export const parseAccountCancellationTimerEvent = (
+  event: CloudFunctionEvent
+): InternalTimerAction | null => {
+  if (event.Type !== 'Timer' || event.TriggerName !== ACCOUNT_CANCELLATION_TIMER_TRIGGER) return null;
+  try {
+    const message = JSON.parse(String(event.Message || '')) as Record<string, unknown>;
+    const internalToken = String(message.internalToken || '').trim();
+    if (message.action !== ACCOUNT_CANCELLATION_TIMER_ACTION || !internalToken) return null;
+    return { action: ACCOUNT_CANCELLATION_TIMER_ACTION, internalToken };
+  } catch {
+    return null;
+  }
 };
 
 type CloudFunctionResponse = {
@@ -110,13 +140,15 @@ export const checkCloudBaseRecipeReadiness = async (
 export const main = async (
   event: CloudFunctionEvent
 ): Promise<CloudFunctionResponse | RecipeApiResponse | PlanApiResponse | BasketApiResponse | AuthApiResponse | ComplianceApiResponse | RecipeGenerationApiResponse> => {
-  if (event.action) {
-    const action = event.action;
+  const timerAction = parseAccountCancellationTimerEvent(event);
+  const action = event.action || timerAction?.action;
+  if (action) {
     return observeAction(action, async () => {
       const { cloudbaseRecipeDependencies, cloudbaseAccountCancellationDependencies } = await import('./cloudbase-runtime.js');
-      if (action === 'system.accountCancellation.runDue') {
+      if (action === ACCOUNT_CANCELLATION_TIMER_ACTION) {
         const token = String(process.env.ACCOUNT_CANCELLATION_TIMER_TOKEN || '').trim();
-        if (!token || event.internalToken !== token) {
+        const internalToken = event.internalToken || timerAction?.internalToken;
+        if (!token || internalToken !== token) {
           return { ok: false, error: { code: 'FORBIDDEN', message: '系统任务未获授权' } };
         }
         const result = await runDueAccountCancellations(cloudbaseAccountCancellationDependencies);

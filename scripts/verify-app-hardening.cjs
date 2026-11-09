@@ -16,7 +16,7 @@ const states = [
   ['pages/about/index.wxml', ['用户协议', '隐私协议', '账号注销', '退出登录']],
   ['pages/feedback/index.wxml', ['反馈内容', '上传图片', '最多 3 张', '保存反馈']],
   ['pages/profile-edit/index.wxml', ['头像', '用户名', '保存']],
-  ['pages/account-cancel/index.wxml', ['提交注销申请', '申请已记录']]
+  ['pages/account-cancel/index.wxml', ['申请注销账号', '账号注销中']]
 ];
 for (const [file, tokens] of states) {
   const source = read(file);

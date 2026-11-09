@@ -541,13 +541,19 @@ Page({
   },
   onConfirmAddPlan(event) {
     if (!requireAuthenticated()) return;
+    if (this.planAdding) return;
     const recipe = this.data.addPlanRecipe;
     if (!recipe) return;
     const { date, dateText, meal, mealName } = event.detail;
-    addRecipeToPlan(date, meal, recipe);
-    app.globalData.pendingPlanSelection = { date, meal, mealName, type: 'recipes', recipes: [recipe] };
-    this.pendingAddPlanToast = `已添加至${dateText}${mealName}计划`;
-    this.setData({ addPlanVisible: false });
+    this.planAdding = true;
+    addRecipeToPlan(date, meal, recipe).then(() => {
+      // 此入口已落库，计划页返回时只刷新数据，不再重复提交。
+      app.globalData.planNeedsRefresh = true;
+      this.pendingAddPlanToast = `已添加至${dateText}${mealName}计划`;
+      this.setData({ addPlanVisible: false });
+    }).catch((error) => {
+      wx.showToast({ title: error.message || '添加计划失败，请稍后重试', icon: 'none' });
+    }).then(() => { this.planAdding = false; });
   },
   onAddPlanAfterClose() {
     const title = this.pendingAddPlanToast;

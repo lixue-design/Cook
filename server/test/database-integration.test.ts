@@ -1,6 +1,7 @@
 import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { promises as fs } from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { Pool } from 'pg';
 import {
@@ -10,15 +11,19 @@ import {
   rollbackLatest,
   verifyMigrations
 } from '../src/migrations';
+import { EXPECTED_DATABASE_VERSION } from '../src/schema-version';
 import { loadTestDatabaseConfig, quoteIdentifier } from './support/test-database';
 
 const testDatabase = loadTestDatabaseConfig();
+const expectedVersions = Array.from({ length: EXPECTED_DATABASE_VERSION }, (_, index) => index + 1);
 const controlPool = new Pool({ connectionString: testDatabase.connectionString, max: 1 });
 const pool = new Pool({
   connectionString: testDatabase.connectionString,
   max: 4,
   options: `-c search_path=${testDatabase.schemaName},pg_catalog`
 });
+const sourceMigrations = path.resolve(__dirname, '../../../database/migrations');
+let isolatedMigrations: string | undefined;
 let publicObjectsBefore: { migration_table: string | null; recipes_table: string | null };
 
 const ids = {
@@ -44,6 +49,17 @@ const expectPgError = async (work: Promise<unknown>, code: string): Promise<void
 };
 
 before(async () => {
+  isolatedMigrations = await fs.mkdtemp(path.join(os.tmpdir(), 'cook-test-migrations-'));
+  for (const name of await fs.readdir(sourceMigrations)) {
+    if (!name.endsWith('.sql')) continue;
+    const sql = await fs.readFile(path.join(sourceMigrations, name), 'utf8');
+    // Keep deployed migration files and their checksums intact. Legacy RPCs
+    // explicitly pin public, so redirect only that clause in the test copies.
+    await fs.writeFile(path.join(isolatedMigrations, name), sql.replace(
+      /^SET search_path = pg_catalog, public, extensions$/gm,
+      `SET search_path = pg_catalog, ${quoteIdentifier(testDatabase.schemaName)}, extensions`
+    ));
+  }
   const publicState = await controlPool.query<{
     migration_table: string | null;
     recipes_table: string | null;
@@ -60,6 +76,7 @@ after(async () => {
     await controlPool.query(`DROP SCHEMA IF EXISTS ${quoteIdentifier(testDatabase.schemaName)} CASCADE`);
   } finally {
     await controlPool.end();
+    if (isolatedMigrations) await fs.rm(isolatedMigrations, { recursive: true });
   }
 });
 
@@ -82,9 +99,8 @@ test('rendered CloudBase adoption is atomic and rejects schema drift', async () 
     max: 1,
     options: `-c search_path=${renderedSchema},pg_catalog`
   });
-  const migrationDirectory = path.resolve(__dirname, '../../../database/migrations');
-  const up = await fs.readFile(path.join(migrationDirectory, '0001_ai_dish_library.up.sql'), 'utf8');
-  const down = await fs.readFile(path.join(migrationDirectory, '0001_ai_dish_library.down.sql'), 'utf8');
+  const up = await fs.readFile(path.join(sourceMigrations, '0001_ai_dish_library.up.sql'), 'utf8');
+  const down = await fs.readFile(path.join(sourceMigrations, '0001_ai_dish_library.down.sql'), 'utf8');
   try {
     await controlPool.query(`CREATE SCHEMA ${quoteIdentifier(renderedSchema)}`);
     await renderedPool.query(up);
@@ -101,7 +117,7 @@ test('rendered CloudBase adoption is atomic and rejects schema drift', async () 
     await renderedPool.query(up);
     await renderedPool.query(adoptionSql);
     assert.deepEqual(await verifyMigrations(renderedPool), {
-      currentVersion: 1, appliedVersions: [1], availableVersions: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+      currentVersion: 1, appliedVersions: [1], availableVersions: expectedVersions
     });
   } finally {
     await renderedPool.end();
@@ -110,21 +126,20 @@ test('rendered CloudBase adoption is atomic and rejects schema drift', async () 
 });
 
 test('adopt rejects drift, then records an exact existing 0001 and migrates through phase 2', async () => {
-  const migrationDirectory = path.resolve(__dirname, '../../../database/migrations');
-  const up = await fs.readFile(path.join(migrationDirectory, '0001_ai_dish_library.up.sql'), 'utf8');
-  const down = await fs.readFile(path.join(migrationDirectory, '0001_ai_dish_library.down.sql'), 'utf8');
+  const up = await fs.readFile(path.join(sourceMigrations, '0001_ai_dish_library.up.sql'), 'utf8');
+  const down = await fs.readFile(path.join(sourceMigrations, '0001_ai_dish_library.down.sql'), 'utf8');
   await pool.query(up);
   await pool.query('ALTER TABLE recipes DROP COLUMN raw_name');
-  await assert.rejects(adoptExistingMigration(pool, 1), /existing schema does not match/);
+  await assert.rejects(adoptExistingMigration(pool, 1, isolatedMigrations), /existing schema does not match/);
   await pool.query(down);
   await pool.query(up);
-  const adopted = await Promise.all([adoptExistingMigration(pool, 1), adoptExistingMigration(pool, 1)]);
+  const adopted = await Promise.all([adoptExistingMigration(pool, 1, isolatedMigrations), adoptExistingMigration(pool, 1, isolatedMigrations)]);
   assert.deepEqual(adopted.sort(), [false, true]);
-  assert.deepEqual(await verifyMigrations(pool), {
-    currentVersion: 1, appliedVersions: [1], availableVersions: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+  assert.deepEqual(await verifyMigrations(pool, isolatedMigrations), {
+    currentVersion: 1, appliedVersions: [1], availableVersions: expectedVersions
   });
-  assert.deepEqual(await migrateUp(pool), [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]);
-  assert.equal((await verifyMigrations(pool)).currentVersion, 14);
+  assert.deepEqual(await migrateUp(pool, isolatedMigrations), expectedVersions.slice(1));
+  assert.equal((await verifyMigrations(pool, isolatedMigrations)).currentVersion, EXPECTED_DATABASE_VERSION);
 });
 
 test('all requested tables exist', async () => {
@@ -132,7 +147,10 @@ test('all requested tables exist', async () => {
     'recipes', 'canonical_dishes', 'dish_aliases', 'normalization_decisions', 'dish_assets',
     'generation_jobs', 'generation_attempts', 'asset_usage_events', 'outbox_events', 'admin_audit_logs',
     'app_users', 'recipe_categories', 'dish_asset_keywords', 'meal_plans', 'meal_plan_recipes',
-    'shopping_baskets', 'shopping_basket_items'
+    'shopping_baskets', 'shopping_basket_items', 'plan_preferences', 'recipe_generation_jobs',
+    'month_plan_templates', 'month_plan_template_items', 'account_cancel_requests',
+    'account_cancel_audit_logs', 'agreement_versions', 'user_agreement_confirmations',
+    'account_cancel_tombstones'
   ];
   const result = await pool.query<{ table_name: string }>(
     `SELECT table_name FROM information_schema.tables
@@ -140,6 +158,32 @@ test('all requested tables exist', async () => {
     [required]
   );
   assert.deepEqual(result.rows.map((row) => row.table_name).sort(), required.sort());
+});
+
+test('schema 33 retains the latest recipe tags, cancellation workflow and required policy', async () => {
+  const columns = await pool.query<{ table_name: string; column_name: string }>(`
+    SELECT table_name, column_name
+    FROM information_schema.columns
+    WHERE table_schema = current_schema()
+      AND (
+        (table_name = 'recipes' AND column_name = 'system_tags')
+        OR (table_name = 'account_cancel_requests'
+          AND column_name = ANY(ARRAY['scheduled_delete_at', 'retry_count', 'retry_after', 'completed_at']))
+      )
+    ORDER BY table_name, column_name
+  `);
+  assert.deepEqual(columns.rows, [
+    { table_name: 'account_cancel_requests', column_name: 'completed_at' },
+    { table_name: 'account_cancel_requests', column_name: 'retry_after' },
+    { table_name: 'account_cancel_requests', column_name: 'retry_count' },
+    { table_name: 'account_cancel_requests', column_name: 'scheduled_delete_at' },
+    { table_name: 'recipes', column_name: 'system_tags' }
+  ]);
+
+  const requiredPolicy = await pool.query<{ version: string }>(
+    'SELECT version FROM agreement_versions WHERE required ORDER BY effective_at DESC LIMIT 1'
+  );
+  assert.equal(requiredPolicy.rows[0]?.version, '2026-11-06');
 });
 
 test('canonical dish status, active-name uniqueness and merge redirect constraints work', async () => {
@@ -477,6 +521,12 @@ test('day plan RPC snapshots survive recipe deletion and enforce owner isolation
   assert.equal(added.rows[0].item.recipeSnapshot.name, '祖传秘制番茄牛腩家庭宴客加强版');
   assert.equal(added.rows[0].item.recipeSnapshot.ingredients.length, 3);
 
+  const repeated = await pool.query(
+    `SELECT cook_plan_add_recipe('rpc-user-a', '2026-07-31', 'lunch', $1, gen_random_uuid(), 1) AS item`,
+    [rpcRecipeId]
+  );
+  assert.deepEqual(repeated.rows[0].item, added.rows[0].item);
+
   const otherUserDay = await pool.query<{ day: Array<{ recipes: unknown[] }> }>(
     `SELECT cook_plan_get_day('rpc-user-b', '2026-07-31') AS day`
   );
@@ -506,14 +556,14 @@ test('basket RPC replacement preserves manual items and enforces owner isolation
   const basketId = 'b0000000-0000-4000-8000-000000000001';
   const manualItemId = 'a0000000-0000-4000-8000-000000000001';
   const planItemId = 'a0000000-0000-4000-8000-000000000002';
-  const created = await pool.query<{ item: { source: string; name: string } }>(
+  const created = await pool.query<{ item: { id: string; name: string } }>(
     `SELECT cook_basket_create_manual_item(
        'rpc-user-a', '2026-07-27', $1, $2,
-       '{"name":"猕猴桃","category":"其他","amount":"","amountText":"3个","unit":"","sortOrder":0}'::jsonb
+       '{"name":"猕猴桃","normalizedName":"猕猴桃"}'::jsonb
      ) AS item`,
     [basketId, manualItemId]
   );
-  assert.equal(created.rows[0].item.source, 'manual');
+  assert.equal(created.rows[0].item.id, manualItemId);
   assert.equal(created.rows[0].item.name, '猕猴桃');
   const planItems = JSON.stringify([{
     id: planItemId,
@@ -600,44 +650,51 @@ test('system tags retain their source and confidence for a minimal recipe title'
   assert.deepEqual(tags.timeLevel, { value: 'quick', source: 'duration', confidence: 'high' });
 });
 
-test('0014 through 0001 rollbacks remove business tables and return version 0', async () => {
-  assert.equal(await rollbackLatest(pool), 14);
-  assert.equal((await verifyMigrations(pool)).currentVersion, 13);
-  assert.equal(await rollbackLatest(pool), 13);
-  assert.equal((await verifyMigrations(pool)).currentVersion, 12);
-  assert.equal(await rollbackLatest(pool), 12);
-  assert.equal((await verifyMigrations(pool)).currentVersion, 11);
-  assert.equal(await rollbackLatest(pool), 11);
-  assert.equal((await verifyMigrations(pool)).currentVersion, 10);
-  assert.equal(await rollbackLatest(pool), 10);
-  assert.equal((await verifyMigrations(pool)).currentVersion, 9);
-  assert.equal(await rollbackLatest(pool), 9);
-  assert.equal((await verifyMigrations(pool)).currentVersion, 8);
-  assert.equal(await rollbackLatest(pool), 8);
-  assert.equal((await verifyMigrations(pool)).currentVersion, 7);
-  assert.equal(await rollbackLatest(pool), 7);
-  assert.equal((await verifyMigrations(pool)).currentVersion, 6);
-  assert.equal(await rollbackLatest(pool), 6);
-  assert.equal((await verifyMigrations(pool)).currentVersion, 5);
-  assert.equal(await rollbackLatest(pool), 5);
-  assert.equal((await verifyMigrations(pool)).currentVersion, 4);
-  assert.equal(await rollbackLatest(pool), 4);
-  assert.equal((await verifyMigrations(pool)).currentVersion, 3);
-  assert.equal(await rollbackLatest(pool), 3);
-  assert.equal((await verifyMigrations(pool)).currentVersion, 2);
-  assert.equal(await rollbackLatest(pool), 2);
-  assert.equal((await verifyMigrations(pool)).currentVersion, 1);
-  assert.equal(await rollbackLatest(pool), 1);
-  assert.deepEqual(await verifyMigrations(pool), {
-    currentVersion: 0, appliedVersions: [], availableVersions: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+test('latest migration rollback and reapply preserve recipe, plan and basket records', async () => {
+  const readCoreCounts = async () => (await pool.query<{
+    recipes: number;
+    plans: number;
+    planRecipes: number;
+    baskets: number;
+    basketItems: number;
+  }>(`
+    SELECT
+      (SELECT count(*)::int FROM recipes) AS recipes,
+      (SELECT count(*)::int FROM meal_plans) AS plans,
+      (SELECT count(*)::int FROM meal_plan_recipes) AS "planRecipes",
+      (SELECT count(*)::int FROM shopping_baskets) AS baskets,
+      (SELECT count(*)::int FROM shopping_basket_items) AS "basketItems"
+  `)).rows[0];
+
+  const before = await readCoreCounts();
+  assert.ok(before.recipes > 0);
+  assert.ok(before.plans > 0);
+  assert.ok(before.baskets > 0);
+
+  assert.equal(await rollbackLatest(pool, isolatedMigrations), EXPECTED_DATABASE_VERSION);
+  assert.equal((await verifyMigrations(pool, isolatedMigrations)).currentVersion, EXPECTED_DATABASE_VERSION - 1);
+  assert.deepEqual(await readCoreCounts(), before);
+
+  assert.deepEqual(await migrateUp(pool, isolatedMigrations), [EXPECTED_DATABASE_VERSION]);
+  assert.equal((await verifyMigrations(pool, isolatedMigrations)).currentVersion, EXPECTED_DATABASE_VERSION);
+  assert.deepEqual(await readCoreCounts(), before);
+});
+
+test('schema 33 through 0001 rollbacks remove business tables and return version 0', async () => {
+  for (let version = EXPECTED_DATABASE_VERSION; version >= 1; version -= 1) {
+    assert.equal(await rollbackLatest(pool, isolatedMigrations), version);
+    assert.equal((await verifyMigrations(pool, isolatedMigrations)).currentVersion, version - 1);
+  }
+  assert.deepEqual(await verifyMigrations(pool, isolatedMigrations), {
+    currentVersion: 0, appliedVersions: [], availableVersions: expectedVersions
   });
   const result = await pool.query<{ exists: string | null }>("SELECT to_regclass('recipes')::text AS exists");
   assert.equal(result.rows[0].exists, null);
 });
 
 test('migration reapplies cleanly after rollback', async () => {
-  assert.deepEqual(await migrateUp(pool), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]);
-  assert.equal((await verifyMigrations(pool)).currentVersion, 14);
+  assert.deepEqual(await migrateUp(pool, isolatedMigrations), expectedVersions);
+  assert.equal((await verifyMigrations(pool, isolatedMigrations)).currentVersion, EXPECTED_DATABASE_VERSION);
 });
 
 test('completed isolated run leaves public migration and recipe objects unchanged', async () => {

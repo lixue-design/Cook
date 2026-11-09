@@ -17,10 +17,16 @@ export type CoverStorage = {
   signedUrls(paths: string[]): Promise<Record<string, string>>;
 };
 
+export type TemporaryFileStorage = {
+  download(fileId: string): Promise<Uint8Array>;
+  remove(fileId: string): Promise<void>;
+};
+
 export type RecipeApiDependencies = {
   getIdentity(): Promise<VerifiedIdentity>;
   rpc: RpcExecutor;
   covers: CoverStorage;
+  temporaryFiles?: TemporaryFileStorage;
 };
 
 export type RecipeApiEvent = {
@@ -69,6 +75,7 @@ const COVER_MIME_EXTENSIONS: Record<string, string> = {
   'image/png': 'png',
   'image/webp': 'webp'
 };
+const TEMPORARY_COVER_FOLDER = 'recipe-cover-uploads';
 
 class ApiError extends Error {
   constructor(readonly code: string, message: string) {
@@ -334,17 +341,14 @@ const createListThumbnail = async (bytes: Buffer): Promise<Buffer> => {
     .toBuffer();
 };
 
-const uploadCover = async (
+const storeCover = async (
   dependencies: RecipeApiDependencies,
   identity: VerifiedIdentity,
-  value: unknown
+  bytes: Buffer,
+  contentType: string
 ): Promise<unknown> => {
-  const payload = asObject(value);
-  const contentType = stringValue(payload.contentType, '图片类型', true).toLowerCase();
   const extension = COVER_MIME_EXTENSIONS[contentType];
   if (!extension) throw new ApiError('UNSUPPORTED_MEDIA_TYPE', '只支持 JPEG、PNG 或 WebP 图片');
-  const base64 = stringValue(payload.base64, '图片内容', true).replace(/^data:[^;]+;base64,/, '');
-  const bytes = Buffer.from(base64, 'base64');
   if (!bytes.length) throw new ApiError('INVALID_ARGUMENT', '图片内容不能为空');
   if (bytes.length > MAX_COVER_BYTES) throw new ApiError('UPLOAD_TOO_LARGE', '图片不能超过5MB');
   const prefix = userStoragePrefix(identity.userId);
@@ -365,6 +369,71 @@ const uploadCover = async (
     await dependencies.covers.upload(fallbackPath, bytes, contentType);
     const urls = await dependencies.covers.signedUrls([fallbackPath]);
     return { storageKey: fallbackPath, coverUrl: urls[fallbackPath] || '' };
+  }
+};
+
+const parseCoverContentType = (value: unknown): string => {
+  const contentType = stringValue(value, '图片类型', true).toLowerCase();
+  if (!COVER_MIME_EXTENSIONS[contentType]) {
+    throw new ApiError('UNSUPPORTED_MEDIA_TYPE', '只支持 JPEG、PNG 或 WebP 图片');
+  }
+  return contentType;
+};
+
+const temporaryCoverPrefixFor = (identity: VerifiedIdentity): string => (
+  `${TEMPORARY_COVER_FOLDER}/${userStoragePrefix(identity.userId)}/`
+);
+
+const prepareCoverUpload = (identity: VerifiedIdentity, value: unknown): Record<string, string> => {
+  const contentType = parseCoverContentType(asObject(value).contentType);
+  const extension = COVER_MIME_EXTENSIONS[contentType];
+  return {
+    cloudPath: `${temporaryCoverPrefixFor(identity)}${randomUUID()}.${extension}`,
+    contentType
+  };
+};
+
+// Compatibility path for already-released clients. New clients upload the file
+// directly to temporary Cloud Storage and pass only its file ID to this function.
+const uploadCover = async (
+  dependencies: RecipeApiDependencies,
+  identity: VerifiedIdentity,
+  value: unknown
+): Promise<unknown> => {
+  const payload = asObject(value);
+  const contentType = parseCoverContentType(payload.contentType);
+  const base64 = stringValue(payload.base64, '图片内容', true).replace(/^data:[^;]+;base64,/, '');
+  return storeCover(dependencies, identity, Buffer.from(base64, 'base64'), contentType);
+};
+
+const completeCoverUpload = async (
+  dependencies: RecipeApiDependencies,
+  identity: VerifiedIdentity,
+  value: unknown
+): Promise<unknown> => {
+  const payload = asObject(value);
+  const contentType = parseCoverContentType(payload.contentType);
+  const cloudPath = stringValue(payload.cloudPath, '临时图片路径', true);
+  const fileId = stringValue(payload.fileId, '临时图片文件', true);
+  const expectedPrefix = temporaryCoverPrefixFor(identity);
+  const extension = COVER_MIME_EXTENSIONS[contentType];
+  if (!cloudPath.startsWith(expectedPrefix) || !new RegExp(`^${expectedPrefix}[0-9a-f-]{36}\\.${extension}$`, 'i').test(cloudPath)) {
+    throw new ApiError('FORBIDDEN', '临时图片路径无效');
+  }
+  if (!fileId.endsWith(`/${cloudPath}`)) {
+    throw new ApiError('FORBIDDEN', '临时图片文件无效');
+  }
+  if (!dependencies.temporaryFiles) throw new ApiError('INTERNAL_ERROR', '封面上传服务暂时不可用');
+
+  try {
+    const bytes = Buffer.from(await dependencies.temporaryFiles.download(fileId));
+    return await storeCover(dependencies, identity, bytes, contentType);
+  } finally {
+    try {
+      await dependencies.temporaryFiles.remove(fileId);
+    } catch {
+      // 临时对象不会影响已保存封面；清理失败也不回滚已成功写入的封面。
+    }
   }
 };
 
@@ -466,6 +535,10 @@ const runAction = async (
     }
     case 'covers.upload':
       return uploadCover(dependencies, identity, payload);
+    case 'covers.upload.prepare':
+      return prepareCoverUpload(identity, payload);
+    case 'covers.upload.complete':
+      return completeCoverUpload(dependencies, identity, payload);
     default:
       throw new ApiError('NOT_FOUND', '未知的菜谱服务操作');
   }

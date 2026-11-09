@@ -50,30 +50,32 @@ npm --prefix server test
   handler 为 `index.main`。
 - [ ] 制品版本、源码 commit、依赖锁文件摘要和构建日志已保存。
 - [ ] 服务端运行身份能访问目标数据库和私有菜谱图片存储，但无超出 MVP 的管理权限。
-- [ ] 部署后 `/health/live` 存活，`/health/ready` 返回就绪且 schema 版本严格为 `32`。
+- [ ] 部署后 `/health/live` 存活，`/health/ready` 返回就绪且 schema 版本严格为 `33`。
 
 真实 CloudBase 函数/容器发布由外部负责人执行，本任务不执行。
 
 ## 4. 数据库迁移门禁
 
-迁移文件必须完整包含 `0001`–`0032` 的 up/down。先在 staging 的隔离数据库演练：
+迁移文件必须完整包含 `0001`–`0033` 的 up/down。先在名称含 `test` 的独立数据库中执行一键演练。
+该命令会创建随机的非 `public` schema，依次完成 `0001`–`0033` 升级、核心菜谱/计划/菜篮数据校验、
+最新 migration 回滚、重新升级，以及全量回滚后重放。它拒绝复用 `DATABASE_URL`，也不会写入 `public` schema。
+演练仅在临时 SQL 副本中把旧 RPC 的固定 `public` 搜索路径指向隔离 schema，仓库中的迁移文件和校验和保持原样：
 
 ```sh
 npm --prefix server run build
-npm --prefix server run migrate
-npm --prefix server run verify
-npm --prefix server run rollback
-npm --prefix server run migrate
-npm --prefix server run verify
+TEST_DATABASE_URL='<仅测试库连接串>' npm --prefix server run test:migration-rehearsal
 ```
 
+- [ ] `TEST_DATABASE_URL` 所指数据库名称包含独立的 `test` 标识，且与应用 `DATABASE_URL` 不同。
+- [ ] 演练日志显示 schema 版本从 `0` 到 `33`，最新版本回滚至 `32` 后能重放至 `33`，最终全量回滚并重放成功。
+- [ ] 演练中的菜谱、计划、计划快照、菜篮和菜篮项数量在最新 migration 回滚/重放前后一致。
 - [ ] 执行前完成可恢复备份，记录备份标识和恢复负责人。
-- [ ] apply/verify 成功，当前版本为 `32`，迁移校验和无差异。
+- [ ] apply/verify 成功，当前版本为 `33`，迁移校验和无差异。
 - [ ] 最近一版 rollback 成功；re-apply 和二次 verify 成功。
 - [ ] owner 隔离、快照、食材合并、注销申请和 RPC 权限集成测试通过。
 - [ ] 生产变更窗口、锁等待、失败终止阈值和恢复路径已批准。
 
-生产环境不得把 `TEST_DATABASE_URL` 当作 `DATABASE_URL`，也不得在无备份时迁移。应用写入新
+体验/生产环境不得把 `TEST_DATABASE_URL` 当作 `DATABASE_URL`，也不得在无备份时迁移。应用写入新
 schema 后，不应盲目回滚数据库：先回退客户端/函数，评估兼容性与已写数据，再由数据库负责人
 决定逐版 down 或从备份恢复。
 
@@ -147,7 +149,7 @@ schema 后，不应盲目回滚数据库：先回退客户端/函数，评估兼
 以下项目来自 `TASK-QA-MVP-001` 和 Full PRD 队列，均需外部负责人补证：
 
 - P0：四类 API 的真实 remote 配置和准确云函数名。
-- P0：独立测试数据库中迁移 0001–0032 的 apply/verify/rollback/re-apply。
+- P0：独立测试数据库中迁移 0001–0033 的 apply/verify/rollback/re-apply。
 - P0：微信开发者工具、真实 CloudBase 和同一账号下的 MVP + Full PRD 连续主链路冒烟及视觉/手势验收。
 - P0：自助注销定时任务、内部令牌、幂等重试及专用测试账号演练闭环。
 - P1：协议与隐私正文的产品/法务批准。

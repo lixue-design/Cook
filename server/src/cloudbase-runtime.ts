@@ -89,5 +89,20 @@ const removeCovers = async (paths: string[]): Promise<void> => {
   if (result.error) throw result.error;
 };
 
-export const cloudbaseRecipeDependencies: RecipeApiDependencies = { getIdentity, rpc, covers };
+const temporaryFiles = {
+  async download(fileId: string): Promise<Uint8Array> {
+    const result = await nodeApp.downloadFile({ fileID: fileId });
+    const content = result.fileContent;
+    if (!content) throw new Error('临时图片读取失败');
+    return Buffer.isBuffer(content) ? content : Buffer.from(content);
+  },
+  async remove(fileId: string): Promise<void> {
+    const result = await nodeApp.deleteFile({ fileList: [fileId] });
+    if (result.fileList.some((item) => item.code && item.code !== 'SUCCESS')) {
+      throw new Error('临时图片清理失败');
+    }
+  }
+};
+
+export const cloudbaseRecipeDependencies: RecipeApiDependencies = { getIdentity, rpc, covers, temporaryFiles };
 export const cloudbaseAccountCancellationDependencies: AccountCancellationDependencies = { rpc, removeCovers };

@@ -3,7 +3,11 @@ import path from 'node:path';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createRequestHandler } from '../src/app';
-import { checkCloudBaseRecipeReadiness, handleCloudFunctionEvent } from '../src/cloud-function';
+import {
+  checkCloudBaseRecipeReadiness,
+  handleCloudFunctionEvent,
+  parseAccountCancellationTimerEvent
+} from '../src/cloud-function';
 import type { QueryExecutor } from '../src/health';
 import { EXPECTED_DATABASE_VERSION } from '../src/schema-version';
 
@@ -88,6 +92,33 @@ test('CloudBase function entry uses index.main-compatible response', async () =>
     status: 'ok', service: 'ai-dish-library', database: 'ok', databaseVersion: EXPECTED_DATABASE_VERSION,
     expectedDatabaseVersion: EXPECTED_DATABASE_VERSION
   });
+});
+
+test('account cancellation timer accepts only its named trigger with a protected message', () => {
+  assert.deepEqual(parseAccountCancellationTimerEvent({
+    Type: 'Timer',
+    TriggerName: 'account-cancellation-daily',
+    Message: JSON.stringify({
+      action: 'system.accountCancellation.runDue',
+      internalToken: 'timer-secret'
+    })
+  }), {
+    action: 'system.accountCancellation.runDue',
+    internalToken: 'timer-secret'
+  });
+  assert.equal(parseAccountCancellationTimerEvent({
+    Type: 'Timer',
+    TriggerName: 'another-trigger',
+    Message: JSON.stringify({
+      action: 'system.accountCancellation.runDue',
+      internalToken: 'timer-secret'
+    })
+  }), null);
+  assert.equal(parseAccountCancellationTimerEvent({
+    Type: 'Timer',
+    TriggerName: 'account-cancellation-daily',
+    Message: '{not json}'
+  }), null);
 });
 
 test('HTTP readiness rejects an empty version-0 migration table', async () => {

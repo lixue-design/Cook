@@ -1,1 +1,1 @@
-export const EXPECTED_DATABASE_VERSION = 32;
+export const EXPECTED_DATABASE_VERSION = 33;

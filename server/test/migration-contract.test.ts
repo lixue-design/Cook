@@ -13,8 +13,18 @@ const requiredTables = [
 
 test('every up migration has a matching rollback and unique version', async () => {
   const migrations = await loadMigrations(directory);
-  assert.deepEqual(migrations.map((item) => item.version), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]);
+  assert.deepEqual(migrations.map((item) => item.version), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33]);
   assert.equal(migrations.at(-1)?.version, EXPECTED_DATABASE_VERSION);
+});
+
+test('plan recipe migration deduplicates existing records and makes add retries idempotent', async () => {
+  const up = await fs.readFile(path.join(directory, '0033_plan_recipe_idempotency.up.sql'), 'utf8');
+  const down = await fs.readFile(path.join(directory, '0033_plan_recipe_idempotency.down.sql'), 'utf8');
+  assert.match(up, /PARTITION BY meal_plan_id, recipe_id/);
+  assert.match(up, /meal_plan_recipes_one_recipe_per_meal_uq/);
+  assert.match(up, /ON CONFLICT \(meal_plan_id, recipe_id\) DO NOTHING/);
+  assert.match(up, /SELECT id, sort_order, recipe_snapshot, source/);
+  assert.match(down, /DROP CONSTRAINT IF EXISTS meal_plan_recipes_one_recipe_per_meal_uq/);
 });
 
 test('recipe list migration returns compact cards without recipe bodies', async () => {
@@ -453,6 +463,8 @@ test('phase 2 API migration adds transactional RPCs and a private PG storage buc
   assert.match(up, /REVOKE ALL ON FUNCTION ai_dish_library_create_recipe/);
   assert.match(up, /GRANT EXECUTE ON FUNCTION ai_dish_library_create_recipe/);
   assert.match(down, /DROP FUNCTION ai_dish_library_create_recipe/);
+  assert.match(down, /Storage API/);
+  assert.doesNotMatch(down, /DELETE FROM storage\.buckets/);
 });
 
 test('recipe migration seeds the five current default categories', async () => {

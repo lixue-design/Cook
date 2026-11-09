@@ -166,6 +166,86 @@ test('custom cover upload saves an original plus a compact WebP list thumbnail',
   }
 });
 
+test('direct temporary cover upload is owner-scoped, stores the cover and clears the temporary file', async () => {
+  const coverStorage = covers();
+  const original = await sharp({
+    create: { width: 1200, height: 800, channels: 3, background: '#f15a24' }
+  }).jpeg().toBuffer();
+  const removed: string[] = [];
+  const rpc: RpcExecutor = {
+    async call<T>(name: string) {
+      if (name === 'ai_dish_library_ensure_user') return identity.userId as T;
+      throw new Error(`unexpected ${name}`);
+    }
+  };
+  const dependencies = {
+    getIdentity: async () => identity,
+    rpc,
+    covers: coverStorage,
+    temporaryFiles: {
+      async download(fileId: string) {
+        assert.match(fileId, /^cloud:\/\/lixue-test\//);
+        return original;
+      },
+      async remove(fileId: string) { removed.push(fileId); }
+    }
+  };
+
+  const prepared = await handleRecipeApiEvent(
+    { action: 'covers.upload.prepare', payload: { contentType: 'image/jpeg' } },
+    dependencies
+  );
+  assert.equal(prepared.ok, true);
+  if (!prepared.ok) return;
+  const cloudPath = String((prepared.data as { cloudPath: string }).cloudPath);
+  const prefix = recipeApiInternals.userStoragePrefix(identity.userId);
+  assert.match(cloudPath, new RegExp(`^recipe-cover-uploads/${prefix}/[0-9a-f-]{36}\\.jpg$`));
+
+  const completed = await handleRecipeApiEvent(
+    {
+      action: 'covers.upload.complete',
+      payload: { contentType: 'image/jpeg', cloudPath, fileId: `cloud://lixue-test/${cloudPath}` }
+    },
+    dependencies
+  );
+  assert.equal(completed.ok, true);
+  assert.equal(coverStorage.uploads.length, 2);
+  assert.deepEqual(removed, [`cloud://lixue-test/${cloudPath}`]);
+});
+
+test('direct temporary cover upload rejects a file outside the caller path', async () => {
+  const coverStorage = covers();
+  const rpc: RpcExecutor = {
+    async call<T>(name: string) {
+      if (name === 'ai_dish_library_ensure_user') return identity.userId as T;
+      throw new Error(`unexpected ${name}`);
+    }
+  };
+  const result = await handleRecipeApiEvent(
+    {
+      action: 'covers.upload.complete',
+      payload: {
+        contentType: 'image/jpeg',
+        cloudPath: 'recipe-cover-uploads/not-the-user/00000000-0000-4000-8000-000000000001.jpg',
+        fileId: 'cloud://lixue-test/recipe-cover-uploads/not-the-user/00000000-0000-4000-8000-000000000001.jpg'
+      }
+    },
+    {
+      getIdentity: async () => identity,
+      rpc,
+      covers: coverStorage,
+      temporaryFiles: {
+        async download() { throw new Error('download must not run'); },
+        async remove() { throw new Error('remove must not run'); }
+      }
+    }
+  );
+  assert.deepEqual(result, {
+    ok: false,
+    error: { code: 'FORBIDDEN', message: '临时图片路径无效' }
+  });
+});
+
 test('custom cover upload rejects unsupported formats and files over five megabytes', async () => {
   const coverStorage = covers();
   const rpc: RpcExecutor = {
